@@ -10,7 +10,7 @@
             <Info :contentId='contentId' v-if='info'></Info>
             <Cluster :contentId='contentId' v-if='cluster'></Cluster>
             <Operation :contentId='contentId' v-if='operation'></Operation>
-            <CheckForm ref="checkform" :contentId='contentId' v-if='checkform'></CheckForm>
+            <CheckForm v-on:checkFormToContent="getChildValue" :contentId='contentId' v-if='checkform'></CheckForm>
         </div>
     </div>
 </template>
@@ -44,9 +44,8 @@ export default {
         }
     },
     methods: {
-        getChildValue: function(){
-            this.confirmdisplay = this.$refs.checkform.confirmDisplay
-            console.log(this.confirmdisplay)
+        getChildValue(value){
+            this.confirmdisplay = value
         }
     },
     watch: {

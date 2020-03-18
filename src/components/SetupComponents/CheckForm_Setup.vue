@@ -63,9 +63,12 @@ export default {
         }
     },
     methods: {
+        emitToContent(event){
+            this.$emit('checkFormToContent', this.confirmDisplay)
+        }
     },
     mounted: function(){
-
+        this.emitToContent()
     }
 }
 </script>

@@ -47,8 +47,9 @@
 </template>
 
 <script>
-// eslint-disable-next-line
+/* eslint-disable no-new */
 /* eslint-disable */
+// eslint-disable-next-line
 
 import ContentSetup from './Content_Setup'
 

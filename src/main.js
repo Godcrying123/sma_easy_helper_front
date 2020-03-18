@@ -9,6 +9,8 @@ import 'bootstrap/dist/js/bootstrap.bundle'
 import VueRouter from 'vue-router'
 import routers from './router'
 import axios from 'axios'
+import 'xterm/css/xterm.css'
+import 'xterm/lib/xterm.js'
 
 /* eslint-disable no-new */
 /* eslint-disable */
@@ -18,7 +20,7 @@ Vue.config.productionTip = false
 
 Vue.use(ViewUI)
 Vue.use(VueRouter)
-// Vue.use(axios)
+    // Vue.use(axios)
 
 Vue.prototype.$axios = axios
 
@@ -29,18 +31,18 @@ const router = new VueRouter({
 
 // the code for handling the NavigationDuplicated error
 const originalPush = VueRouter.prototype.push
-VueRouter.prototype.push = function push(location){
+VueRouter.prototype.push = function push(location) {
     return originalPush.call(this, location).catch(err => err)
 }
 
 
 new Vue({
-  el: '#app',
-  router,
-  components: {
-      App
-  },
-  template: `<div id="app">
+    el: '#app',
+    router,
+    components: {
+        App
+    },
+    template: `<div id="app">
   <template>
     <Menu mode="horizontal" theme="primary" active-name="1" @on-select='routerMenu' >
         <MenuItem name="Setup">
@@ -63,31 +65,32 @@ new Vue({
   <router-view></router-view>
   </div>
   `,
-  data (){
-      return {menuName: 0}
+    data() {
+        return { menuName: 0 }
     },
-  methods: {
-      routerMenu(name){
-          if (name === 'Setup') {
-              this.$router.push({
-                  path: '/setup'});
-          } else if (name === 'Action') {
-              this.$router.push({
-                  path: '/action'
-              })
-          } else if (name === 'Cluster') {
-            this.$router.push({
-                path: '/cluster'
-            })
-          } else if (name === 'Operation') {
-            this.$router.push({
-                path: '/operation'
-            })
-          } else if(name === 'Log') {
-            this.$router.push({
-                path: '/log'
-            })
-          }
-      }
-  }
+    methods: {
+        routerMenu(name) {
+            if (name === 'Setup') {
+                this.$router.push({
+                    path: '/setup'
+                });
+            } else if (name === 'Action') {
+                this.$router.push({
+                    path: '/action'
+                })
+            } else if (name === 'Cluster') {
+                this.$router.push({
+                    path: '/cluster'
+                })
+            } else if (name === 'Operation') {
+                this.$router.push({
+                    path: '/operation'
+                })
+            } else if (name === 'Log') {
+                this.$router.push({
+                    path: '/log'
+                })
+            }
+        }
+    }
 }).$mount('#app')
