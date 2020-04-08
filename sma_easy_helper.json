@@ -1,0 +1,135 @@
+{
+  "clusters": [
+    {
+      "Cluster_Id": 1,
+      "Name": "cluster-01",
+      "NumofMachine": 3,
+      "Label": "develop",
+      "Machines": [
+        {
+          "Id": 1,
+          "HostName": "test-cluster-01",
+          "HostIp": "192.0.0.1",
+          "UserName": "Jackson",
+          "AuthType": "password",
+          "Password": "123456",
+          "AuthKey": "/test/script.crt",
+          "Label": "master"
+        },
+        {
+          "Id": 2,
+          "HostName": "test-cluster-02",
+          "HostIp": "192.0.0.1",
+          "UserName": "Jackson",
+          "AuthType": "password",
+          "Password": "123456",
+          "AuthKey": "/test/script.crt",
+          "Label": "worker"
+        },
+        {
+          "Id": 3,
+          "HostName": "test-cluster-03",
+          "HostIp": "192.0.0.1",
+          "UserName": "Jackson",
+          "AuthType": "password",
+          "Password": "123456",
+          "AuthKey": "/test/script.crt",
+          "Label": "NFS-server"
+        }
+      ]
+    },
+    {
+      "Cluster_Id": 2,
+      "Name": "cluster-02",
+      "NumofMachine": 3,
+      "Label": "QA",
+      "Machines": [
+        {
+          "Id": 4,
+          "HostName": "test-cluster-01",
+          "HostIp": "192.0.0.1",
+          "UserName": "Jackson",
+          "AuthType": "password",
+          "Password": "123456",
+          "AuthKey": "/test/script.crt",
+          "Label": "master"
+        },
+        {
+          "Id": 5,
+          "HostName": "test-cluster-02",
+          "HostIp": "192.0.0.1",
+          "UserName": "Jackson",
+          "AuthType": "password",
+          "Password": "123456",
+          "AuthKey": "/test/script.crt",
+          "Label": "worker"
+        },
+        {
+          "Id": 6,
+          "HostName": "test-cluster-03",
+          "HostIp": "192.0.0.1",
+          "UserName": "Jackson",
+          "AuthType": "password",
+          "Password": "123456",
+          "AuthKey": "/test/script.crt",
+          "Label": "NFS-server"
+        }
+      ]
+    }
+  ],
+  "operations":[
+    {
+    "Operation_ID": 1,
+    "Operation_Description": "the operation for installing the nginx and the start the nginx server",
+    "NumOfSteps": 3,
+    "DetailedSteps": [
+      {
+        "SubOperation_ID": 1,
+        "SubOperation_Description": "please install nginx package in the VM",
+        "Machine": "master",
+        "StepType": "SSH",
+        "Commands": [
+          {
+            "Command": "yum install nginx"
+          },
+          {
+            "Command": "cd /etc/nginx"
+          }
+        ],
+        "File":"",
+        "FileChange":"",
+        "URL":"",
+        "Image":"",
+        "Notifications":"please check the firewalld service status",
+        "CheckMethod": "rpm -qa|nginx"
+      },
+      {
+        "SubOperation_ID": 2,
+        "SubOperation_Description": "Configure the nginx.conf file",
+        "Machine": "master",
+        "StepType": "File",
+        "Command": [],
+        "File":"/etc/nginx/nginx.conf",
+        "FileChange":"",
+        "URL":"",
+        "Image":"",
+        "Notifications": "please make sure the file has been saved",
+        "CheckMethod": ""
+      },
+      {
+        "SubOperation_ID": 3,
+        "SubOperation_Description": "Open the http://localhost:8080/ page to review the page",
+        "Machine": "master",
+        "StepType": "URL",
+        "Command": [],
+        "File":"",
+        "FileChange":"",
+        "URL":"http://localhost:8080",
+        "Image":"",
+        "Notifications": "make sure the locahost and related port has not been occupied",
+        "CheckMethod": ""
+      }
+    ]
+  }
+  ]
+}
