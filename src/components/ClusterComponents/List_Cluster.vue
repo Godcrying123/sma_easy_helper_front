@@ -29,9 +29,9 @@ export default {
         }
     },
     watch: {
-        clusterListDate: function(){
-            console.log(this.clusterListDate)
-        },
+        // clusterListDate: function(){
+        //     console.log(this.clusterListDate)
+        // },
         clusterSelect: function() {
             this.emitToClusterIndex()
         }
