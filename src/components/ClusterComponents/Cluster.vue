@@ -1,12 +1,12 @@
 <template>
     <div>
         <Layout>
-            <Sider theme="light" hidder-trigger :style="{backgroud: '#f5f7f9'}">
-                <ClusterList v-on:clusterNameToIndex="clusterNameGet"  :clusterListDate="clusterListDate" ></ClusterList>
+            <Sider hidder-trigger :style="{background: '#fff'}">
+                <ClusterList v-on:clusterNameToIndex="clusterNameGet" :clusterListData="clusterListData" ></ClusterList>
             </Sider>
             <Layout :style="{padding: '24px 24px 24px 24px'}">
                 <Content :style="{padding: '24px', minHeight: '380px', background: '#fff'}">
-                    <ClusterContent :clusterSetDate="clusterDemo" ></ClusterContent>
+                    <ClusterContent :clusterDemo="clusterDemo" ></ClusterContent>
                 </Content>
             </Layout>
         </Layout>
@@ -30,7 +30,7 @@ export default {
         return {
             clusterInfoGetUrl: '',
             clusterSetDate: [],
-            clusterListDate: [],
+            clusterListData: [],
             clusterName: null,
             clusterDemo: {
                 "Cluster_Id": 1,
@@ -92,12 +92,12 @@ export default {
         clusterList(){
             for (let index = 0; index < this.clusterSetDate.length; index++) {
                 const element = this.clusterSetDate[index];
-                this.clusterListDate.push(element)
+                this.clusterListData.push(element)
             }
         },
         clusterNameGet(value){
             this.clusterName = value
-            console.log(this.clusterSetDate)
+            // console.log(this.clusterSetDate)
             // console.log(this.clusterName)
             // this.clusterSetDate = this.clusterSetDate[this.clusterName]
         }

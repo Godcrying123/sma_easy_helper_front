@@ -5,30 +5,17 @@
                 <h3>Cluster Editor Panel</h3>
                 <span>please edit the cluster information in this table based on the suggestions</span>
             </Row>
-        </div>
-        <hr>
-        <div>
-            <Row class="expand-row">
-            <Col span="8">
-                <span class="expand-key">UserName: </span>
-                <span class="expand-value">{{ row.username }}</span>
-            </Col>
-            <Col span="8">
-                <span class="expand-key">AuthType: </span>
-                <span class="expand-value">{{ row.authtype }}</span>
-            </Col>
-            <Col span="8">
-                <span class="expand-key">Password: </span>
-                <span class="expand-value">{{ row.password }}</span>
-            </Col>
-            <Col span="8">
-                <span class="expand-key">Label: </span>
-                <span class="expand-value">{{ row.label }}</span>
-            </Col>
-            <Col span="8">
-                <span class="expand-key">AuthKey: </span>
-                <span class="expand-value">{{ row.authkey }}</span>
-            </Col>
+            <hr>
+            <Row>
+                <Table :columns="table_columns" :data="this.clusterDemo.Machines"></Table>
+            </Row>
+            <br>
+            <Row>
+                <Col span="6" offset="18" justify="end">
+                    <Button >Back</Button>
+                    <Button type="primary">Save</Button>
+                    <Button >Export</Button>
+                </Col>
             </Row>
         </div>
     </div>
@@ -39,27 +26,59 @@
 /* eslint-disable */
 // eslint-disable-next-line
 
+import expandRow from './Cluster_TableExpand'
+
 export default {
     name: 'Content',
+    components: {
+        expandRow
+    },
     data (){
         return {
+            table_columns: [
+                {
+                    type: 'expand',
+                    width: 50,
+                    render: (h, params) => {
+                        return h(expandRow, {
+                            props: {
+                                row: params.row
+                            }
+                        })
+                    }
+                },
+                {
+                    title: 'Label',
+                    key: 'Label'
+                },
+                {
+                    title: 'HostName',
+                    key: 'HostName'
+                },
+                {
+                    title: 'HostIp',
+                    key: 'HostIp'
+                },
+                {
+                    title: '',
+                    key: ''
+                }
+            ]
         }
     },
-    props: {
-        
-    },
+    props: ['clusterDemo'],
     methods: {
-        // clusterDemoShow(){
-        //     console.log(clusterDemo)
-        // }
-    },
-    watch: {
-        clusterDemo: function(){
+        clusterDemoShow(){
             console.log(this.clusterDemo)
         }
     },
+    watch: {
+        // clusterDemo: function(){
+        //     console.log(this.clusterDemo)
+        // }
+    },
     mounted(){
-        // this.clusterDemoShow()
+        this.clusterDemoShow()
     }
 }
 </script>

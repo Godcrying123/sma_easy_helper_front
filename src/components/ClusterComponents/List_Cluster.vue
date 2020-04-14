@@ -1,7 +1,7 @@
 <template>
     <div>
-        <Menu theme="light" width="auto" active-name="1" v-for="clusterEntity in clusterListDate" :key="clusterEntity.Cluster_Id" @on-select='clusterClick'>
-            <MenuItem :name="clusterEntity.Name">{{ clusterEntity.Name }}</MenuItem>
+        <Menu width="auto" active-name="1" v-for="clusterEntity in clusterListData" :key="clusterEntity.Cluster_Id" @on-select='clusterClick'>
+            <MenuItem theme="light" :name="clusterEntity.Name">{{ clusterEntity.Name }}</MenuItem>
         </Menu>
     </div>
 </template>
@@ -18,7 +18,7 @@ export default {
             clusterSelect: null
         }
     },
-    props: ["clusterListDate"],
+    props: ["clusterListData"],
     methods: {
         clusterClick(name) {
             this.clusterSelect = name
