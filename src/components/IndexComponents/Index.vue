@@ -1,15 +1,15 @@
 <template>
-    <div class="demo-split">
-        <Split v-model="split1">
-            <div slot="left" class="demo-split-pane">
+    <div>
+        <Layout>
+            <Sider hidder-trigger :style="{background: '#fff'}">
                 <Operation v-on:operationToIndex="getSubStep"></Operation>
-            </div>
-            <div slot="right" class="demo-split-pane">
-                <div :style="{padding: '10px 10px 10px'}">
+            </Sider>
+            <Layout :style="{padding: '24px 24px 24px 24px'}">
+                <Content :style="{padding: '24px', background: '#fff'}">
                     <component :is="TabTemplate"></component>
-                </div>
-            </div>
-        </Split>
+                </Content>
+            </Layout>
+        </Layout>
     </div>
 </template>
 
@@ -28,12 +28,13 @@ export default {
     name: 'Action',
     components: {
         Operation,
-        Notification,
+        Notification
     },
     data (){
         return {
             TabSet: {},
             split1: 0.25,
+            TabSelect: null
         }
     },
     props: {
@@ -46,25 +47,26 @@ export default {
         getSubStep(value){
             if (this.TabSet[value.SubOperation_ID] == null) {
                 this.TabSet[value.SubOperation_ID] = value
+                this.TabSelect = value.Machine + " || " + value.StepType
+                console.log(this.TabSelect)
                 this.changeTabWindows()
             }
         },
         changeTabWindows () {
-            var html = '<Tabs type="card" id="indexTab" closable @on-tab-remove="handleTabRemove">';
+            var html = '<Tabs type="card" id="indexTab" :value="TabValue" closable @on-tab-remove="handleTabRemove">';
             for (const key in this.TabSet) {
                 if (this.TabSet.hasOwnProperty(key)) {
                     const element = this.TabSet[key];
-                    // console.log(element.StepType)
-                    // console.log(element.SubOperation_ID)
+                    const tabName = element.Machine+" || "+element.StepType
                     if (element.StepType == 'SSH') {
-                        html += '<TabPane label="'+ element.StepType +'" v-if="tab0"><Xterm></Xterm></TabPane>'
+                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'"><Xterm></Xterm></TabPane>'
                     } else if (element.StepType == 'File') {
-                        html += '<TabPane label="'+ element.StepType +'" v-if="tab0"><File></File></TabPane>'
+                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'"><File></File></TabPane>'
                     } else if (element.StepType == 'Image'){
-                        html += '<TabPane label="'+ element.StepType +'" v-if="tab0"><NotiImage></NotiImage></TabPane>'
+                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'"><NotiImage></NotiImage></TabPane>'
                     }  else if (element.StepType == 'URL'){
-                        html += '<TabPane label="'+ element.StepType +'" v-if="tab0">URL</TabPane>'
-                    }
+                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'">URL</TabPane>'
+                    } 
                 }
             }
             html += '</Tabs>'
@@ -84,14 +86,20 @@ export default {
                     return{
                         tab0: true,
                         tab1: true,
-                        tab2: true
+                        tab2: true,
+                        TabValue: `${this.TabSelect}`
                     }
                 },
                 template: `${this.TabCreateTemplate}`,
                 methods: {
                     handleTabRemove (name) {
                         this['tab' + name] = false;
-                    },
+                    }
+                },
+                watch: {
+                    TabValue: function(val) {
+                        console.log(val)
+                    }
                 }
             }
         }

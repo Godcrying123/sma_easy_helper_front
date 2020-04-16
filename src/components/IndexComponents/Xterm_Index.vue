@@ -1,8 +1,6 @@
 <template>
     <div>
-        <div>
-            <div id="terminal" ref="terminal"></div>
-        </div>
+        <div id="terminal" ref="terminal"></div>
     </div>
 </template>
 
@@ -12,137 +10,182 @@
 // eslint-disable-next-line
 
 import {Terminal} from 'xterm'
-import {FitAddon} from 'xterm-addon-fit'
-import {AttachAddon} from 'xterm-addon-attach'
-import "xterm/css/xterm.css"
-import "xterm/lib/xterm.js"
+// import {FitAddon} from 'xterm-addon-fit'
+// import {AttachAddon} from 'xterm-addon-attach'
 
+import {Base64} from 'js-base64'
+import * as fit from 'xterm/lib/addons/fit/fit'
+import * as webLinks from 'xterm/lib/addons/webLinks/webLinks'
+import * as search from 'xterm/lib/addons/search/search'
+import * as fullscreen from "xterm/lib/addons/fullscreen/fullscreen"
+import "xterm/dist/xterm.css"
+
+import config from '@/libs/config'
+
+let bindTerminalResize = (term, websocket) => {
+    let onTerminalResize = size => {
+        websocket.send(
+            JSON.stringify({
+                type: "resize",
+                rows: size.rows,
+                cols: size.cols
+            })
+        );
+    };
+    // register resize event
+    term.on("resize", onTerminalResize);
+    // unregister resize event when WebSocket closed
+    websocket.addEventListener("close", function(){
+        term.off("resize", onTerminalResize);
+    });
+};
+let bindTerminal = (term, websocket, bidirectional, bufferedTime) => {
+    term.socket = websocket;
+    let messageBuffer = null;
+    let handleWebSocketMessage = function (ev) {
+        if (bufferedTime & bufferedTime > 0) {
+            if (messageBuffer) {
+                messageBuffer += ev.data;
+            } else {
+                messageBuffer = ev.data;
+                setTimeout(function(){
+                    term.write(messageBuffer);
+                }, bufferedTime);
+            }
+        } else {
+            term.write(ev.data)
+        }
+    };
+    websocket.onmessage = handleWebSocketMessage;
+    let handleTerminalData = function (data) {
+        websocket.send(
+            JSON.stringify({
+                type: "cmd",
+                cmd: Base64.encode(data) //encode data as base64 format
+            })
+        );
+    };
+    if(bidirectional) {
+        term.on('data', handleTerminalData);
+    }
+
+    // send heartbeat package to avoid closing webSocket connection in some proxy environment such as nginx
+    let heartBeatTimer = setInterval(function (){
+        websocket.send(JSON.stringify({type: "heartbeat", data: ""}));
+    }, 20 * 1000);
+
+    websocket.addEventListener("close", function(){
+        websocket.removeEventListener("message", handleWebSocketMessage);
+        term.off("data", handleTerminalData);
+        delete term.socket;
+        clearInterval(heartBeatTimer);
+    });
+};
 export default {
-    name: 'xterm',
+    name: "Shell",
+    props: {obj: {type: Object, require: true}, visible: Boolean},
     data() {
         return {
+            isFullScreen:false,
+            searchKey:"",
+            v: this.visible,
+            ws: null,
+            term: null,
+            thisV: this.visible,
             shellWs: "",
-            term: "",
-            rows: 55,
-            cols: 100,
-            urlParam: {
-                fullTag: "",
-                namespace: "",
-                podName: ""
-            },
-            socket: null
+            term: null, // 保存terminal实例
+            rows: 40,
+            cols: 100
         };
     },
-    created(){
-        this.wsShell();
-    },
-    mounted(){
-        let _this = this;
-
-        let term = new Terminal({
-            rendererType:"canvas",
-            rows: parseInt(_this.rows),
-            cols: parseInt(_this.cols),
-            convertEol: true,
-            scrollback: 50,//终端中的回滚量
-            disableStdin:false,
-            cursorStyle: "underline",
-            cursorBlink:true,
-            theme: {
-                foreground: "#7e9192",
-                background: "#002833",
-                cursor: "help",
-                lineHeight: 16
-            }
-        });
-        // const attachAddon = new AttachAddon(this.socket);
-        const fitAddon = new FitAddon();
-        // term.loadAddon(attachAddon);
-        
-        // 挂载到dom
-        term.loadAddon(fitAddon);
-        fitAddon.fit();
-        term.open(this.$refs["terminal"]);
-        term.focus();
-
-        // 换行并输入起始字符"$"
-        term.promt = () => {
-            term.write("\r\n$");
-        };
-        term.promt();
-
-        function runFakeTerminal(_this){
-            if(term._initialized){
-                return;
-            }
-            // 初始化
-            term._initialized = true;
-            term.writeln("Welcome to use Superman");
-            term.writeln(
-                 `This is Web Terminal of pod\x1B[1;3;31m ${_this.urlParam.podName}\x1B[0m in namespace\x1B[1;3;31m ${_this.urlParam.namespace}\x1B[0m`
-            );
-            term.promt();
-            term.onData(function(key){
-               let order = {
-                   Data: key,
-                   Op: "stdin"
-               };
-               _this.onSend(order);
-            });
-
-            _this.term = term;
+    watch: {
+        visible(val) {
+            this.v = val; //新增result的watch，监听变更并同步到myResult上
         }
-        runFakeTerminal(_this);
+    },
+    computed: {
+        termTitle(){
+            if (this.obj && this.obj.cluster_ssh) {
+                return `${this.obj.cluster_ssh.ssh_user || ''}@{this.obj.ssh_ip}:${this.obj.ssh_port}`
+            }
+            return ""
+        },
+        wsUrl() {
+            let token = localStorage.getItem('token');
+            let testURL = `${config.wsBase}/api/v1/ws/`
+            return testURL
+        }
     },
     methods: {
-        wsShell(){
-            const _this = this;
-            let tag_string = this.urlParam.fullTag;
-            let namespace = this.urlParam.namespace;
-            let pod_name = this.urlParam.podName;
-            
-            let query = `?tag_string=${tag_string}&namespace=${namespace}&pod_name=${pod_name}`;
-            let url = `v1/container/terminal/ws${query}`;
-            
-            this.shellWs = this.base.WS({
-                url,
-                isInit: true,
-                openFn(){
-                     _this.term.resize({ rows: _this.rows, cols: 100 });
-                },
-                messageFn(e){
-                    console.log("message", e);
-                    if(e){
-                        let data = JSON.parse(e.data);
-                        if (data.Data == "\n" || data.Data == "\r\nexit\r\n"){
-                            _this.$message("连接已关闭");
-                        }
-
-                        // 打印后端返回数据
-                        _this.term.write(data.Data);
-                    }
-                },
-                errorFn(e){
-                    // 出现错误关闭当前ws，并且提示
-                    console.log("error", e);
-                    _this.$message.error({
-                        message: "ws请求失败，请刷新重试",
-                        duration: 5000
-                    });
+        runRealTerminal(){
+            console.log("websocket is running")
+        },
+        closeRealTerminal(){
+            console.log("websocket is closed")
+        },
+        onWindowResize(){
+            this.term.fit(); //it will make terminal resized
+        },
+        doLink(ev, url) {
+            if(ev.type === 'click'){
+                window.open(url)
+            }
+        },
+        doClose(){
+            window.removeEventListener("resize", onWindowResize);
+            term.off("resize", this.onTerminalResize);
+            if(this.ws) {
+                this.ws.close()
+            }
+            if (this.term) {
+                this.term.dispose()
+            }
+            this.$emit("afterClose")
+        },
+        doOpen(){},
+        doOpened(){
+            // Terminal.applyAddon(fit)
+            // Terminal.applyAddon(webLinks)
+            // Terminal.applyAddon(search)
+            this.term = new Terminal({
+                rendererType: "canvas",
+                rows: this.rows,
+                cols: this.cols,
+                fontSize: 20,
+                cursorBlink: true,
+                cursorStyle: 'bar',
+                bellStyle: "sound",
+                theme: {
+                    foreground: "#7e9192",
+                    background: "#002833",
+                    lineHeight: 16
                 }
             });
-        },
-
-        onSend(data){
-            // data = this.base.isObject(data) ? JSON.stringify(data) : data;
-            // data = this.base.isArray(data) ? data.toString() : data;
-            // data = data.replace(/\\\\/, "\\");
-            // this.shellWs.onSend(data);
-        },
-
-        trim(str){
-            return str.replace(/(^\s*)|(\s*$)/g, "");
+            // const fitAddon = new FitAddon();
+            // this.term.loadAddon(fitAddon)
+            // fitAddon.fit()
+            this.term.open(this.$refs.terminal);
+            this.term.focus()
+            // this.term.fit(); //first resizing
+            // this.term.webLinksInit(this.doLink);
+            window.addEventListener("resize", this.onWindowResize);
+            this.ws = new WebSocket(this.wsUrl);
+            this.ws.onclose = (ce) => {
+                this.term.setOption("cursorBlink", false);
+                if (ce.code != 1005) {
+                    this.$notify.error({
+                        title: `code $(ce.code)`,
+                        message: ce.reson,
+                    });
+                    this.doClose()
+                }
+            };
+            bindTerminal(this.term, this.ws, true, -1)
+            bindTerminalResize(this.term, this.ws)
         }
+    },
+    mounted(){
+        this.doOpened()
     }
-};
+}
 </script>

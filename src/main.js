@@ -9,7 +9,7 @@ import 'bootstrap/dist/js/bootstrap.bundle'
 import VueRouter from 'vue-router'
 import routers from './router'
 import axios from 'axios'
-import 'xterm/css/xterm.css'
+// import 'xterm/css/xterm.css'
 import 'xterm/lib/xterm.js'
 
 /* eslint-disable no-new */

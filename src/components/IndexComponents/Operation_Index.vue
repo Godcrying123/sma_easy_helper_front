@@ -1,6 +1,6 @@
 <template>
     <div>
-        <Menu active-name="1" v-for="operationEntity in operation_data" :key="operationEntity.SubOperation_ID" @on-select='menuClick'>
+        <Menu width="auto" active-name="1" v-for="operationEntity in operation_data" :key="operationEntity.SubOperation_ID" @on-select='menuClick'>
             <MenuItem :name="operationEntity.SubOperation_ID">{{ operationEntity.SubOperation_Description}}</MenuItem>
         </Menu>
     </div>
