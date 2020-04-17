@@ -30,6 +30,7 @@ export default {
         },
         menuClick(name){
             this.sub_operation_data = this.operation_data[name - 1]
+            // this.emitToIndex()
         },
         emitToIndex(event){
             this.$emit('operationToIndex', this.sub_operation_data)

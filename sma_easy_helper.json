@@ -103,8 +103,28 @@
         "Notifications":"please check the firewalld service status",
         "CheckMethod": "rpm -qa|nginx"
       },
-      {
+	  {
         "SubOperation_ID": 2,
+        "SubOperation_Description": "please add the nginx.conf file",
+        "Machine": "master",
+        "StepType": "SSH",
+        "Commands": [
+          {
+            "Command": "yum install nginx"
+          },
+          {
+            "Command": "cd /etc/nginx"
+          }
+        ],
+        "File":"",
+        "FileChange":"",
+        "URL":"",
+        "Image":"",
+        "Notifications":"please check the firewalld service status",
+        "CheckMethod": "rpm -qa|nginx"
+      },
+      {
+        "SubOperation_ID": 3,
         "SubOperation_Description": "Configure the nginx.conf file",
         "Machine": "master",
         "StepType": "File",
@@ -117,7 +137,7 @@
         "CheckMethod": ""
       },
       {
-        "SubOperation_ID": 3,
+        "SubOperation_ID": 4,
         "SubOperation_Description": "Open the http://localhost:8080/ page to review the page",
         "Machine": "master",
         "StepType": "URL",

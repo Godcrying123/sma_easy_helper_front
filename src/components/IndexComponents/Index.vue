@@ -6,7 +6,7 @@
             </Sider>
             <Layout :style="{padding: '24px 24px 24px 24px'}">
                 <Content :style="{padding: '24px', background: '#fff'}">
-                    <component :is="TabTemplate"></component>
+                    <component v-on:tabList="getTabList" :indexTabList="indexTabList" :TabSet="TabSet" :TabSelect="TabSelect" :is="TabTemplate"></component>
                 </Content>
             </Layout>
         </Layout>
@@ -33,8 +33,9 @@ export default {
     data (){
         return {
             TabSet: {},
-            split1: 0.25,
-            TabSelect: null
+            indexTabList: [],
+            // split1: 0.25,
+            TabSelect: ""
         }
     },
     props: {
@@ -45,33 +46,36 @@ export default {
     },
     methods: {
         getSubStep(value){
-            if (this.TabSet[value.SubOperation_ID] == null) {
-                this.TabSet[value.SubOperation_ID] = value
-                this.TabSelect = value.Machine + " || " + value.StepType
-                console.log(this.TabSelect)
-                this.changeTabWindows()
-            }
+            this.TabSet[value.SubOperation_ID] = value
+            // this.TabSelect = value.Machine + "||" + value.StepType + "||" + value.SubOperation_ID
+            this.TabSelect = "tab" + value.SubOperation_ID
+            this.changeTabWindows()
         },
         changeTabWindows () {
-            var html = '<Tabs type="card" id="indexTab" :value="TabValue" closable @on-tab-remove="handleTabRemove">';
+            var html = '<Tabs type="card" id="indexTab" :animated=false :value="TabSelect" closable @on-tab-remove="handleTabRemove">';
             for (const key in this.TabSet) {
                 if (this.TabSet.hasOwnProperty(key)) {
                     const element = this.TabSet[key];
-                    const tabName = element.Machine+" || "+element.StepType
+                    const tabLabel = "[" + element.StepType + "]" + element.Machine + "|" + element.SubOperation_ID
+                    const tabName = "tab" + element.SubOperation_ID
+                    var vifLabel =  element.SubOperation_ID - 1
                     if (element.StepType == 'SSH') {
-                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'"><Xterm></Xterm></TabPane>'
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><Xterm></Xterm></TabPane>'
                     } else if (element.StepType == 'File') {
-                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'"><File></File></TabPane>'
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><File></File></TabPane>'
                     } else if (element.StepType == 'Image'){
-                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'"><NotiImage></NotiImage></TabPane>'
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><NotiImage></NotiImage></TabPane>'
                     }  else if (element.StepType == 'URL'){
-                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'">URL</TabPane>'
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" >URL</TabPane>'
                     } 
                 }
             }
             html += '</Tabs>'
             this.TabCreateTemplate = html
-            // console.log(this.TabTemplate)
+        },
+        getTabList(value){
+            console.log("I am getting tablist")
+            this.indexTabList = value
         }
     },
     computed: {
@@ -82,25 +86,45 @@ export default {
                     File,
                     NotiImage,
                 },
+                props: ['TabSelect', "TabSet", "indexTabList"],
                 data(){
                     return{
-                        tab0: true,
-                        tab1: true,
-                        tab2: true,
-                        TabValue: `${this.TabSelect}`
+                        tabList: [],
+                        tabSelectName: null
                     }
                 },
                 template: `${this.TabCreateTemplate}`,
                 methods: {
                     handleTabRemove (name) {
-                        this['tab' + name] = false;
+                        this.tabSelectName = name.slice(3)
+                        this.tabList[parseInt(this.tabSelectName) - 1] = false;
+                        this.emitToIndex()
+                    },
+                    emitToIndex(event){
+                        this.$emit('tabList', this.tabList)
+                        console.log(this.tabList)
                     }
                 },
                 watch: {
-                    TabValue: function(val) {
+                    'this.tabList': function(val){
                         console.log(val)
                     }
-                }
+                },
+                mounted() {
+                    var length = Object.keys(this.TabSet).length
+                    console.log(this.indexTabList)
+                    this.tabList = this.indexTabList
+                    for (const key in this.TabSet) {
+                        var index = parseInt(key - 1)
+                        this.tabList[index] = true
+                    }
+                    console.log(this.tabList)
+                    console.log(this.indexTabList)
+                    // console.log(this.tabList[0])
+                    // console.log(this.tabList[1])
+                    // console.log(this.tabList[2])
+                    // console.log(this.tabList[3])
+                },
             }
         }
     }
