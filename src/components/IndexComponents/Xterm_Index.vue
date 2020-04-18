@@ -1,6 +1,20 @@
 <template>
     <div>
-        <div id="terminal" ref="terminal"></div>
+        <Row>
+            <Col span="4">
+                <label>Excute Command:</label>
+            </Col>
+            <Col span="16">
+                <Input v-model="execCommand" placeholder="Enter something..." clearable style="width: 95%" />
+            </Col>
+            <Col span="4">
+                <Button type="primary" long @click="excuteCommand">Excute</Button>
+            </Col>
+        </Row>
+        <br>
+        <Row>
+            <div id="terminal" ref="terminal"></div>
+        </Row>
     </div>
 </template>
 
@@ -43,6 +57,7 @@ let bindTerminal = (term, websocket, bidirectional, bufferedTime) => {
     term.socket = websocket;
     let messageBuffer = null;
     let handleWebSocketMessage = function (ev) {
+        // console.log(ev.data)
         if (bufferedTime & bufferedTime > 0) {
             if (messageBuffer) {
                 messageBuffer += ev.data;
@@ -83,7 +98,7 @@ let bindTerminal = (term, websocket, bidirectional, bufferedTime) => {
 };
 export default {
     name: "Shell",
-    props: {obj: {type: Object, require: true}, visible: Boolean},
+    props: ["execCommand"],
     data() {
         return {
             isFullScreen:false,
@@ -95,7 +110,8 @@ export default {
             shellWs: "",
             term: null, // 保存terminal实例
             rows: 40,
-            cols: 100
+            cols: 100,
+            terminalEntity: null
         };
     },
     watch: {
@@ -131,6 +147,23 @@ export default {
                 window.open(url)
             }
         },
+        excuteCommand(){
+            if (this.term == null) {
+                console.log("the term has not been initilized")
+            } else if (this.ws == null) {
+                console.log("the websocket has not been initilized")
+            } else  {
+                let handleTerminalData = function (data, websocket) {
+                    websocket.send(
+                    JSON.stringify({
+                        type: "cmd",
+                        cmd: Base64.encode(data) //encode data as base64 format
+                    })
+                );
+            };
+            handleTerminalData(this.command, this.ws)
+            }
+        },
         doClose(){
             window.removeEventListener("resize", onWindowResize);
             term.off("resize", this.onTerminalResize);
@@ -151,7 +184,7 @@ export default {
                 rendererType: "canvas",
                 rows: this.rows,
                 cols: this.cols,
-                fontSize: 20,
+                fontSize: 16,
                 cursorBlink: true,
                 cursorStyle: 'bar',
                 bellStyle: "sound",

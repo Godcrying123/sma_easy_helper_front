@@ -1,9 +1,9 @@
 <template>
     <div>
         <div>
-            <Button :size="buttonSize">Go Back</Button>
-            <Button type="primary" :size="buttonSize">Next Step</Button>
-            <Button type="success" :size="buttonSize" v-if="confirmdisplay">Confirm</Button>
+            <Button :size="buttonSize" @click="backStep">Go Back</Button>
+            <Button type="primary" :size="buttonSize" @click="nextStep" >Next Step</Button>
+            <Button type="success" :size="buttonSize" v-if="confirmdisplay" @click="confirmStep">Confirm</Button>
         </div>
         <br>
         <div>
@@ -46,6 +46,15 @@ export default {
     methods: {
         getChildValue(value){
             this.confirmdisplay = value
+        },
+        backStep(){
+            console.log("I am back")
+        },
+        nextStep(){
+            console.log("I am in next step")
+        },
+        confirmStep(){
+            console.log("I am confirming")
         }
     },
     watch: {

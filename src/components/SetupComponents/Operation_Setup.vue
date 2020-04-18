@@ -46,7 +46,7 @@ export default {
         operationInfoGet(){
             this.$axios.get('http://localhost:3000/operations').then((response)=>{
                 this.operation_data = response.data[0].DetailedSteps
-                console.log(this.operation_data)
+                // console.log(this.operation_data)
             }).catch((function(error){
                 console.log(error)
             }))

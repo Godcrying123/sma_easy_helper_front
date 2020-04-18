@@ -76,6 +76,7 @@ export default {
         clusterlistGet(){
             this.$axios.get('http://localhost:3000/clusters').then((response) => {
                 this.clusterSetDate = response.data
+                console.log("I am calling")
                 this.clusterList()
             }).catch((function (error){
                 console.log(error)
@@ -94,6 +95,7 @@ export default {
                 const element = this.clusterSetDate[index];
                 this.clusterListData.push(element)
             }
+            console.log(this.clusterListData)
         },
         clusterNameGet(value){
             this.clusterName = value

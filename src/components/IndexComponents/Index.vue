@@ -51,7 +51,7 @@ export default {
             this.TabSelect = "tab" + value.SubOperation_ID
             this.changeTabWindows()
         },
-        changeTabWindows () {
+        changeTabWindows (ev) {
             var html = '<Tabs type="card" id="indexTab" :animated=false :value="TabSelect" closable @on-tab-remove="handleTabRemove">';
             for (const key in this.TabSet) {
                 if (this.TabSet.hasOwnProperty(key)) {
@@ -60,7 +60,7 @@ export default {
                     const tabName = "tab" + element.SubOperation_ID
                     var vifLabel =  element.SubOperation_ID - 1
                     if (element.StepType == 'SSH') {
-                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><Xterm></Xterm></TabPane>'
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><Xterm :execCommand="execCommand" ></Xterm></TabPane>'
                     } else if (element.StepType == 'File') {
                         html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><File></File></TabPane>'
                     } else if (element.StepType == 'Image'){
@@ -74,8 +74,8 @@ export default {
             this.TabCreateTemplate = html
         },
         getTabList(value){
-            console.log("I am getting tablist")
             this.indexTabList = value
+            this.changeTabWindows()
         }
     },
     computed: {
@@ -90,7 +90,8 @@ export default {
                 data(){
                     return{
                         tabList: [],
-                        tabSelectName: null
+                        tabSelectName: null,
+                        execCommand: ""
                     }
                 },
                 template: `${this.TabCreateTemplate}`,
@@ -98,11 +99,15 @@ export default {
                     handleTabRemove (name) {
                         this.tabSelectName = name.slice(3)
                         this.tabList[parseInt(this.tabSelectName) - 1] = false;
-                        this.emitToIndex()
+                        delete this.TabSet[this.tabSelectName]
+                        this.emitTabListToIndex()
+                        this.emitTabSetToIndex()
                     },
-                    emitToIndex(event){
+                    emitTabListToIndex(event){
                         this.$emit('tabList', this.tabList)
-                        console.log(this.tabList)
+                    },
+                    emitTabSetToIndex(event){
+                        this.$emit('TabSet', this)
                     }
                 },
                 watch: {
@@ -112,18 +117,11 @@ export default {
                 },
                 mounted() {
                     var length = Object.keys(this.TabSet).length
-                    console.log(this.indexTabList)
                     this.tabList = this.indexTabList
                     for (const key in this.TabSet) {
                         var index = parseInt(key - 1)
                         this.tabList[index] = true
                     }
-                    console.log(this.tabList)
-                    console.log(this.indexTabList)
-                    // console.log(this.tabList[0])
-                    // console.log(this.tabList[1])
-                    // console.log(this.tabList[2])
-                    // console.log(this.tabList[3])
                 },
             }
         }
