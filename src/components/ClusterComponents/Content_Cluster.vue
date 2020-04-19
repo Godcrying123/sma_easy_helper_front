@@ -69,7 +69,7 @@ export default {
     props: ['clusterDemo'],
     methods: {
         clusterDemoShow(){
-            console.log(this.clusterDemo)
+            // console.log(this.clusterDemo)
         }
     },
     watch: {

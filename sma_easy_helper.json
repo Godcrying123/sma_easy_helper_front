@@ -85,17 +85,10 @@
     "DetailedSteps": [
       {
         "SubOperation_ID": 1,
-        "SubOperation_Description": "please install nginx package in the VM",
+        "SubOperation_Description": "install nginx package",
         "Machine": "master",
         "StepType": "SSH",
-        "Commands": [
-          {
-            "Command": "yum install nginx"
-          },
-          {
-            "Command": "cd /etc/nginx"
-          }
-        ],
+        "Commands": "whoami",
         "File":"",
         "FileChange":"",
         "URL":"",
@@ -105,17 +98,10 @@
       },
 	  {
         "SubOperation_ID": 2,
-        "SubOperation_Description": "please add the nginx.conf file",
+        "SubOperation_Description": "add nginx.conf file",
         "Machine": "master",
         "StepType": "SSH",
-        "Commands": [
-          {
-            "Command": "yum install nginx"
-          },
-          {
-            "Command": "cd /etc/nginx"
-          }
-        ],
+        "Commands": "pwd",
         "File":"",
         "FileChange":"",
         "URL":"",
@@ -138,7 +124,7 @@
       },
       {
         "SubOperation_ID": 4,
-        "SubOperation_Description": "Open the http://localhost:8080/ page to review the page",
+        "SubOperation_Description": "Open the http://localhost:8080/ page",
         "Machine": "master",
         "StepType": "URL",
         "Command": [],

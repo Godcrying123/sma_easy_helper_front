@@ -2,7 +2,7 @@
     <div>
         <Layout>
         <Sider hide-trigger :style="{background: '#fff'}" >
-            <Menu active-name="1-1" theme="light" width="auto" :open-names="['1']"  @on-select='contentSwitch'>
+            <Menu :active-name="currentMenu" theme="light" width="auto" :open-names="['1', '2', '3', '4']"  @on-select='contentSwitch'>
                 <Submenu name="1">
                     <template slot="title">
                         <Icon type="md-alert"></Icon>
@@ -37,8 +37,8 @@
             </Menu>
         </Sider>
         <Layout :style="{padding: '24px 24px 24px 24px'}">
-            <Content :style="{padding: '24px', minHeight: '280px', background: '#fff'}">
-                <ContentSetup :cateId='cateId' :contentId='contentId'></ContentSetup>
+            <Content :style="{padding: '24px', minHeight: '1000px', background: '#fff'}">
+                <ContentSetup v-on:nextMenuToIndex="getNextMenu" :cateId='cateId' :contentId='contentId' :currentMenu="currentMenu"></ContentSetup>
             </Content>
         </Layout>
     </Layout>
@@ -62,13 +62,18 @@ export default {
         return {
             cateId: 0,
             contentId: 0,
-            current: 0
+            currentMenu: "1-1",
         }
     },
     methods: {
         contentSwitch(name){
             this.cateId = name.split('-')[0]
             this.contentId = name.split('-')[1]
+            this.currentMenu = name
+        },
+        getNextMenu(value){
+            this.currentMenu = value
+            this.contentSwitch(value)
         }
     },
     mounted: function(){

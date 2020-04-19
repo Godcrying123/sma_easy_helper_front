@@ -8,9 +8,9 @@
         <br>
         <div>
             <Info :contentId='contentId' v-if='info'></Info>
-            <Cluster :contentId='contentId' v-if='cluster'></Cluster>
-            <Operation :contentId='contentId' v-if='operation'></Operation>
-            <CheckForm v-on:checkFormToContent="getChildValue" :contentId='contentId' v-if='checkform'></CheckForm>
+            <Cluster v-on:clusterToContent="getCluster" :ClusterSelectedValue="ClusterSelectedValue" v-if='cluster'></Cluster>
+            <Operation v-on:operationToContent="getOperation" :OperationSelectedValue="OperationSelectedValue" v-if='operation'></Operation>
+            <CheckForm v-on:checkFormToContent="getChildValue" :contentId='contentId' v-if='checkform' :ClusterSelectedValue="ClusterSelectedValue" :OperationSelectedValue="OperationSelectedValue"></CheckForm>
         </div>
     </div>
 </template>
@@ -32,7 +32,7 @@ export default {
         Operation,
         CheckForm
     },
-    props:['cateId','contentId'],
+    props:['cateId','contentId', "currentMenu"],
     data (){
         return {
             info: true,
@@ -40,22 +40,66 @@ export default {
             operation: false,
             checkform: false,
             buttonSize: 'large',
-            confirmdisplay: true
+            confirmdisplay: true,
+            subCateID: 0,
+            subContentId: 0,
+            nextMenu: "",
+            ClusterSelectedValue: null,
+            OperationSelectedValue: null
         }
     },
     methods: {
         getChildValue(value){
             this.confirmdisplay = value
         },
+        getCluster(value){
+            this.ClusterSelectedValue = value
+        },
+        getOperation(value){
+            this.OperationSelectedValue = value
+        },
         backStep(){
-            console.log("I am back")
+            if (this.subCateID == "4") {
+                this.nextMenu = "3-1"
+            } else if (this.subCateID == "3") {
+                this.nextMenu = "2-1"
+            } else if (this.subCateID == "2") {
+                this.nextMenu = "1-4"
+            } else {
+                if (this.subContentId == "1") {
+                    this.nextMenu = "1-1"
+                } else {
+                    this.nextMenu = "1" + "-" + (parseInt(this.subContentId) - 1)
+                }
+            }
+            this.emitNextMenuToIndex()
         },
         nextStep(){
-            console.log("I am in next step")
+            if (this.subCateID == "4") {
+                this.nextMenu = "4-1"
+            } else if (this.subCateID == "3") {
+                this.nextMenu = "4-1"
+            } else if (this.subCateID == "2") {
+                this.nextMenu = "3-1"
+            } else {
+                if (this.subContentId == "4") {
+                    this.nextMenu = "2-1"
+                } else {
+                    this.nextMenu = "1" + "-" + (parseInt(this.subContentId) + 1)
+                }
+            }
+            this.emitNextMenuToIndex()
+            // console.log(this.nextMenu)
         },
         confirmStep(){
-            console.log("I am confirming")
-        }
+            this.$router.push({
+                    path: '/action?cluster='+ this.ClusterSelectedValue +'&operation='+ this.OperationSelectedValue
+                })
+        },
+        emitNextMenuToIndex(){
+            // this.currentMenu = this.nextMenu
+            this.$emit("nextMenuToIndex", this.nextMenu)
+        },
     },
     watch: {
         cateId: function(){
@@ -80,10 +124,19 @@ export default {
                 this.operation = false,
                 this.checkform = true
             }
+        },
+        nextMenu: function() {
+            this.subCateID = this.currentMenu.split('-')[0]
+            this.subContentId = this.currentMenu.split('-')[1]
+        },
+        currentMenu: function() {
+            this.nextMenu = this.currentMenu
         }
     },
     mounted: function(){
         this.getChildValue()
+        this.subCateID = this.currentMenu.split('-')[0]
+        this.subContentId = this.currentMenu.split('-')[1]
     }
 }
 </script>

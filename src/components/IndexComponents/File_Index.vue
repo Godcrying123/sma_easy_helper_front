@@ -48,10 +48,11 @@ export default {
             //'image',  // 插入图片
             // 'table',  // 表格
             //'video',  // 插入视频
-            //'code',  // 插入代码
+            'code',  // 插入代码
             'undo',  // 撤销
             'redo'  // 重复
         ];
+        // editor.customConfig.zIndex = 10
         // 聚焦时候函数
         this.editor.customConfig.onfocus = function(){
             console.log("onfocus");
@@ -73,7 +74,9 @@ export default {
 <style>
 .editor{
     width: 100%;
-    height: 500px;
     margin-bottom: auto;
+}
+.w-e-text-container{
+    min-height: 700px !important;/*!important是重点，因为原div是行内样式设置的高度300px*/
 }
 </style>

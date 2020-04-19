@@ -11,7 +11,7 @@
                 this is your selected cluster information
             </p>
             <p>
-                <Table :columns="columns3"></Table>
+                <Table :columns="columns3" :data="clusterDemo.Machines"></Table>
             </p>
             <p>
                 <br/>
@@ -27,9 +27,10 @@
 /* eslint-disable */
 export default {
     name: 'checkform',
+    props:['ClusterSelectedValue','OperationSelectedValue'],
     data (){
         return {
-            confirmDisplay:true,
+            confirmDisplay:false,
             columns3: [
                 {
                     title: 'Label',
@@ -60,15 +61,66 @@ export default {
                     title: 'AuthKey',
                     key: 'AuthKey',
                 }],
+
+                clusterDemo: {
+                "Cluster_Id": 1,
+                "Name": "cluster-01",
+                "NumofMachine": 3,
+                "Label": "develop",
+                "Machines": [
+                {
+                    "Id": 1,
+                    "HostName": "test-cluster-01",
+                    "HostIp": "192.0.0.1",
+                    "UserName": "Jackson",
+                    "AuthType": "password",
+                    "Password": "123456",
+                    "AuthKey": "/test/script.crt",
+                    "Label": "master"
+                },
+                {
+                    "Id": 2,
+                    "HostName": "test-cluster-02",
+                    "HostIp": "192.0.0.1",
+                    "UserName": "Jackson",
+                    "AuthType": "password",
+                    "Password": "123456",
+                    "AuthKey": "/test/script.crt",
+                    "Label": "worker"
+                },
+                {
+                    "Id": 3,
+                    "HostName": "test-cluster-03",
+                    "HostIp": "192.0.0.1",
+                    "UserName": "Jackson",
+                    "AuthType": "password",
+                    "Password": "123456",
+                    "AuthKey": "/test/script.crt",
+                    "Label": "NFS-server"
+                }]
+            }
         }
     },
     methods: {
         emitToContent(event){
             this.$emit('checkFormToContent', this.confirmDisplay)
+        },
+        clusterEntityGet(){
+        },
+        operationEntityGet(){
+        }
+    },
+    watch: {
+        confirmDisplay: function(){
+            this.emitToContent()
         }
     },
     mounted: function(){
-        this.emitToContent()
+        if (this.ClusterSelectedValue != null && this.OperationSelectedValue != null)  {
+            this.clusterEntityGet()
+            this.operationEntityGet()
+            this.confirmDisplay = true
+        }
     }
 }
 </script>

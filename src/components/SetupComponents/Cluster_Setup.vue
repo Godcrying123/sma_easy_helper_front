@@ -7,7 +7,7 @@
             </Row>
             <br/>
             <Row>
-                <RadioGroup>
+                <RadioGroup v-model="clusterSelected">
                     <Radio v-for="clusterEntity in clusterDate" :key="clusterEntity.Cluster_Id" :label="clusterEntity.Name" border></Radio>
                 </RadioGroup>
             </Row>
@@ -34,8 +34,10 @@
 // eslint-disable-next-line
 export default {
     name: 'cluster',
+    props: ['ClusterSelectedValue'],
     data (){
         return {
+            clusterSelected: null,
             columns2: [
                 {
                     title: 'Label',
@@ -98,10 +100,19 @@ export default {
             }).catch((function (error){
                 console.log(error)
             }))
-            }
+        },
+        emitToContent(event){
+            this.$emit('clusterToContent', this.clusterSelected)
+        }
     },
-    beforeMount: function(){
+    watch: {
+        clusterSelected: function(){
+            this.emitToContent()
+        }
+    },
+    mounted: function(){
         this.clusterInfoGet()
+        this.clusterSelected = this.ClusterSelectedValue
     }
 }
 </script>

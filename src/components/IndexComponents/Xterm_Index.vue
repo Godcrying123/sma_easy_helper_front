@@ -109,7 +109,7 @@ export default {
             thisV: this.visible,
             shellWs: "",
             term: null, // 保存terminal实例
-            rows: 40,
+            rows: 50,
             cols: 100,
             terminalEntity: null
         };
@@ -161,7 +161,8 @@ export default {
                     })
                 );
             };
-            handleTerminalData(this.command, this.ws)
+            // console.log(this.execCommand)
+            handleTerminalData(this.execCommand, this.ws)
             }
         },
         doClose(){
@@ -184,7 +185,7 @@ export default {
                 rendererType: "canvas",
                 rows: this.rows,
                 cols: this.cols,
-                fontSize: 16,
+                fontSize: 18,
                 cursorBlink: true,
                 cursorStyle: 'bar',
                 bellStyle: "sound",

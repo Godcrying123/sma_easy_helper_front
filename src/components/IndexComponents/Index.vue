@@ -5,8 +5,8 @@
                 <Operation v-on:operationToIndex="getSubStep"></Operation>
             </Sider>
             <Layout :style="{padding: '24px 24px 24px 24px'}">
-                <Content :style="{padding: '24px', background: '#fff'}">
-                    <component v-on:tabList="getTabList" :indexTabList="indexTabList" :TabSet="TabSet" :TabSelect="TabSelect" :is="TabTemplate"></component>
+                <Content :style="{padding: '24px', minHeight: '1000px', background: '#fff'}">
+                    <component v-on:tabList="getTabList" :indexTabList="indexTabList" :execCommandMain="execCommandMain" :TabSet="TabSet" :TabSelect="TabSelect" :is="TabTemplate"></component>
                 </Content>
             </Layout>
         </Layout>
@@ -35,7 +35,8 @@ export default {
             TabSet: {},
             indexTabList: [],
             // split1: 0.25,
-            TabSelect: ""
+            TabSelect: "",
+            execCommandMain: ""
         }
     },
     props: {
@@ -46,12 +47,13 @@ export default {
     },
     methods: {
         getSubStep(value){
+            this.execCommandMain = value.Commands
             this.TabSet[value.SubOperation_ID] = value
             // this.TabSelect = value.Machine + "||" + value.StepType + "||" + value.SubOperation_ID
             this.TabSelect = "tab" + value.SubOperation_ID
             this.changeTabWindows()
         },
-        changeTabWindows (ev) {
+        changeTabWindows () {
             var html = '<Tabs type="card" id="indexTab" :animated=false :value="TabSelect" closable @on-tab-remove="handleTabRemove">';
             for (const key in this.TabSet) {
                 if (this.TabSet.hasOwnProperty(key)) {
@@ -86,7 +88,7 @@ export default {
                     File,
                     NotiImage,
                 },
-                props: ['TabSelect', "TabSet", "indexTabList"],
+                props: ['TabSelect', "TabSet", "indexTabList", "execCommandMain"],
                 data(){
                     return{
                         tabList: [],
@@ -116,6 +118,7 @@ export default {
                     }
                 },
                 mounted() {
+                    this.execCommand = this.execCommandMain
                     var length = Object.keys(this.TabSet).length
                     this.tabList = this.indexTabList
                     for (const key in this.TabSet) {

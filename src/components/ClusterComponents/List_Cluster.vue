@@ -1,11 +1,6 @@
 <template>
     <div>
-        <Menu width="auto" :active-name="clusterEntity.Name" v-for="clusterEntity in clusterListData" :key="clusterEntity.Cluster_Id" @on-select='clusterClick'>
-            <MenuItem theme="light" :name="clusterEntity.Name" >{{ clusterEntity.Name }}</MenuItem>
-            <MenuItem theme="light" :name="clusterEntity.Name" >{{ clusterEntity.Name }}</MenuItem>
-        </Menu>
-        <!-- <component :is="ClusterMenu"></component> -->
-        <!-- <Menu theme="light" width="auto" @on-select="clusterClick"><MenuItem theme="light" name="cluster-01" >cluster-01</MenuItem><MenuItem theme="light" name="cluster-02" >cluster-02</MenuItem></Menu> -->
+        <component :is="ClusterMenu"></component>
     </div>
 </template>
 
@@ -16,16 +11,15 @@
 
 export default {
     name: 'List',
+    props: ["clusterListData"],
     data (){
         return {
             clusterSelect: null,
             menuCreateTemplate: ""
         }
     },
-    props: ["clusterListData"],
     methods: {
         clusterClick(name) {
-            console.log(name)
             this.clusterSelect = name
         },
         emitToClusterIndex(event){
@@ -33,33 +27,42 @@ export default {
             this.$emit('clusterNameToIndex', this.clusterSelect)
         },
         changeMenu() {
-            var html = '<Menu theme="light" width="auto" @on-select="contentSwitch">'
-            console.log(Object.keys(this.clusterListData).length)
+            var html = '<Menu theme="light" width="auto" @on-select="clusterClick">'
             for (const key in this.clusterListData) {
                 const element = this.clusterListData[key]
                 html += '<MenuItem theme="light" name="'+ element.Name +'" >'+ element.Name +'</MenuItem>'
             }
             html += "</Menu>"
-            console.log(html)
             this.menuCreateTemplate = html
         }
 
     },
-    computed: {
-        ClusterMenu: function() {
-            template: `${this.menuCreateTemplate}`
+    watch: {
+        clusterListData: function() {
+            this.changeMenu()
         }
     },
-    watch: {
-        // clusterListDate: function(){
-        //     console.log(this.clusterListDate)
-        // },
-        clusterSelect: function() {
-            this.emitToClusterIndex()
+    computed: {
+        ClusterMenu: function() {
+            return {
+                props: ["clusterListData"],
+                data() {
+                    return {
+                        clusterSelect: null
+                    }
+                },
+                methods: {
+                    clusterClick(name) {
+                        this.clusterSelect = name
+                    },
+                },
+                template: `${this.menuCreateTemplate}`
+            }
         }
     },
     mounted(){
-        this.changeMenu()
+        // this.changeMenu()
+        
     }
 }
 </script>

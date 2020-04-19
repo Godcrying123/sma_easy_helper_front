@@ -2,10 +2,10 @@
     <div>
         <Layout>
             <Sider hidder-trigger :style="{background: '#fff'}">
-                <ClusterList v-on:clusterNameToIndex="clusterNameGet" :clusterListData="clusterListData" ></ClusterList>
+                <ClusterList :clusterListData="clusterListData" v-on:clusterNameToIndex="clusterNameGet" ></ClusterList>
             </Sider>
             <Layout :style="{padding: '24px 24px 24px 24px'}">
-                <Content :style="{padding: '24px', minHeight: '380px', background: '#fff'}">
+                <Content :style="{padding: '24px', minHeight: '1000px', background: '#fff'}">
                     <ClusterContent :clusterDemo="clusterDemo" ></ClusterContent>
                 </Content>
             </Layout>
@@ -76,7 +76,6 @@ export default {
         clusterlistGet(){
             this.$axios.get('http://localhost:3000/clusters').then((response) => {
                 this.clusterSetDate = response.data
-                console.log("I am calling")
                 this.clusterList()
             }).catch((function (error){
                 console.log(error)
@@ -95,7 +94,6 @@ export default {
                 const element = this.clusterSetDate[index];
                 this.clusterListData.push(element)
             }
-            console.log(this.clusterListData)
         },
         clusterNameGet(value){
             this.clusterName = value
@@ -104,7 +102,7 @@ export default {
             // this.clusterSetDate = this.clusterSetDate[this.clusterName]
         }
     },
-    mounted(){
+    created(){
         this.clusterlistGet()
     }
 }

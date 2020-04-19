@@ -7,7 +7,7 @@
             </Row>
             <br/>
             <Row>
-                <RadioGroup>
+                <RadioGroup v-model="operationSelected">
                     <Poptip trigger="hover" content="This is operation for installing the nginx" placement="bottom-start">
                         <Radio label="Nginx" border></Radio>
                     </Poptip>
@@ -37,8 +37,10 @@
 // eslint-disable-next-line
 export default {
     name: 'operation',
+    props: ['OperationSelectedValue'],
     data (){
         return {
+            operationSelected: null,
             operation_data: ""
         }
     },
@@ -50,11 +52,19 @@ export default {
             }).catch((function(error){
                 console.log(error)
             }))
+        },
+        emitToContent(event){
+            this.$emit('operationToContent', this.operationSelected)
+        }
+    },
+    watch: {
+        operationSelected: function(){
+            this.emitToContent()
         }
     },
     mounted: function(){
         this.operationInfoGet()
-
+        this.operationSelected = this.OperationSelectedValue
     }
 }
 </script>
