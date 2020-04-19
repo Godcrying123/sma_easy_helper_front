@@ -1,13 +1,36 @@
 <template>
     <div id="File">
-        <Row>
-            <div>
+        <Row :gutter="16">
+            <Col span="8">
+                <div>
+                    <Row>
+                        <h6>File Path:</h6>
+                        <Col span="22"><Input v-model="execCommand" placeholder="Please Input the File Path" clearable style="width: 98%" /></Col>
+                        <Col span="2"><Button type="primary" shape="circle" icon="ios-search" @click="fileNav"></Button></Col>
+                    </Row>
+                    <br>
+                    <Row>
+                        <Table height="500" :columns="columns1" :data="data2"></Table>
+                    </Row>
+                    <Row>
+                        <Card>
+                            <p slot="title">File Change Instructions</p>
+                            <p>Content of card</p>
+                            <p>Content of card</p>
+                            <p>Content of card</p>
+                        </Card>
+                    </Row>
+                </div>
+            </Col>
+            <Col span="16">
+            <Row>
                 <Button type="primary" :size="large">Submit</Button>
-            </div>
-        </Row>
-        <br>
-        <Row>
-            <div class="editor" id="editor" ref="editor"></div>
+            </Row>
+            <br>
+            <Row>
+                <div class="editor" id="editor" ref="editor"></div>
+            </Row>
+            </Col>
         </Row>
     </div>
 </template>
@@ -23,10 +46,37 @@ export default {
     name: 'File',
     data (){
         return {
-            editor: ""
+            editor: "",
+            columns1: [
+                {
+                    title: 'File Name',
+                    key: 'name'
+                },
+                {
+                    title: 'Modified Time',
+                    key: 'time'
+                },
+                {
+                    title: 'Action',
+                    key: 'action',
+                    render: (h, params) => {
+                        return h('div', [
+                            h('Button', {
+                                props: {
+                                    type: 'text',
+                                    size: 'small'
+                                }
+                            }, 'Open')
+                        ])
+                    }
+                }
+            ]
         }
     },
     methods: {
+        fileNav() {
+            console.log("I am navgating to the file")
+        }
     },
     mounted(){
         this.editor = new Editor("#editor");
