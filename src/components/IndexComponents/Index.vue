@@ -6,7 +6,7 @@
             </Sider>
             <Layout :style="{padding: '24px 24px 24px 24px'}">
                 <Content :style="{padding: '24px', minHeight: '1000px', background: '#fff'}">
-                    <component v-on:tabList="getTabList" :indexTabList="indexTabList" :execCommandMain="execCommandMain" :TabSet="TabSet" :TabSelect="TabSelect" :is="TabTemplate"></component>
+                    <component v-on:tabList="getTabList" :indexTabList="indexTabList" :execCommandMain="execCommandMain" :FileMain="FileMain" :FileChangeMain="FileChangeMain" :TabSet="TabSet" :TabSelect="TabSelect" :is="TabTemplate"></component>
                 </Content>
             </Layout>
         </Layout>
@@ -36,7 +36,9 @@ export default {
             indexTabList: [],
             // split1: 0.25,
             TabSelect: "",
-            execCommandMain: ""
+            execCommandMain: "",
+            FileMain: "",
+            FileChangeMain: ""
         }
     },
     props: {
@@ -48,6 +50,8 @@ export default {
     methods: {
         getSubStep(value){
             this.execCommandMain = value.Commands
+            this.FileMain = value.File
+            this.FileChangeMain = value.FileChange
             this.TabSet[value.SubOperation_ID] = value
             // this.TabSelect = value.Machine + "||" + value.StepType + "||" + value.SubOperation_ID
             this.TabSelect = "tab" + value.SubOperation_ID
@@ -64,7 +68,7 @@ export default {
                     if (element.StepType == 'SSH') {
                         html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><Xterm :execCommand="execCommand" ></Xterm></TabPane>'
                     } else if (element.StepType == 'File') {
-                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><File></File></TabPane>'
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><File :File="File" :FileChange="FileChange" ></File></TabPane>'
                     } else if (element.StepType == 'Image'){
                         html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><NotiImage></NotiImage></TabPane>'
                     }  else if (element.StepType == 'URL'){
@@ -88,12 +92,14 @@ export default {
                     File,
                     NotiImage,
                 },
-                props: ['TabSelect', "TabSet", "indexTabList", "execCommandMain"],
+                props: ['TabSelect', 'TabSet', 'indexTabList', 'execCommandMain', 'FileMain', 'FileChangeMain'],
                 data(){
                     return{
                         tabList: [],
                         tabSelectName: null,
-                        execCommand: ""
+                        execCommand: "",
+                        File: "",
+                        FileChange: ""
                     }
                 },
                 template: `${this.TabCreateTemplate}`,
@@ -119,6 +125,8 @@ export default {
                 },
                 mounted() {
                     this.execCommand = this.execCommandMain
+                    this.File = this.FileMain
+                    this.FileChange = this.FileChangeMain
                     var length = Object.keys(this.TabSet).length
                     this.tabList = this.indexTabList
                     for (const key in this.TabSet) {

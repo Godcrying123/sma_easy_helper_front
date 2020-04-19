@@ -5,12 +5,12 @@
                 <div>
                     <Row>
                         <h6>File Path:</h6>
-                        <Col span="22"><Input v-model="execCommand" placeholder="Please Input the File Path" clearable style="width: 98%" /></Col>
+                        <Col span="22"><Input v-model="File" placeholder="Please Input the File Path" clearable style="width: 98%" /></Col>
                         <Col span="2"><Button type="primary" shape="circle" icon="ios-search" @click="fileNav"></Button></Col>
                     </Row>
                     <br>
                     <Row>
-                        <Table height="500" :columns="columns1" :data="data2"></Table>
+                        <Table height="500" :columns="columns1" :data="FileDemo"></Table>
                     </Row>
                     <Row>
                         <Card>
@@ -44,17 +44,18 @@ import Editor from 'wangeditor'
 
 export default {
     name: 'File',
+    props: ['File','FileChange'],
     data (){
         return {
             editor: "",
             columns1: [
                 {
                     title: 'File Name',
-                    key: 'name'
+                    key: 'Name'
                 },
                 {
                     title: 'Modified Time',
-                    key: 'time'
+                    key: 'Time'
                 },
                 {
                     title: 'Action',
@@ -64,11 +65,40 @@ export default {
                             h('Button', {
                                 props: {
                                     type: 'text',
-                                    size: 'small'
-                                }
+                                    size: 'small',
+                                    value: params.row.tag
+                                },
+                                 on:{
+                                     click: () => {
+                                         const name = params.row.Name
+                                         this.handleClick(name)
+                                     }
+                                    }
                             }, 'Open')
                         ])
                     }
+                }
+            ],
+            FileDemo:[
+                {
+                    "Name": "test1.sh",
+                    "Time": "2019-01-02"
+                },
+                {
+                    "Name": "test2.sh",
+                    "Time": "2019-01-02"
+                },
+                {
+                    "Name": "test3.sh",
+                    "Time": "2019-01-02"
+                },
+                {
+                    "Name": "test4.sh",
+                    "Time": "2019-01-02"
+                },
+                {
+                    "Name": "test5.sh",
+                    "Time": "2019-01-02"
                 }
             ]
         }
@@ -76,6 +106,9 @@ export default {
     methods: {
         fileNav() {
             console.log("I am navgating to the file")
+        },
+        handleClick(name){
+            console.log(name)
         }
     },
     mounted(){
@@ -115,8 +148,6 @@ export default {
         };
         this.editor.create();
         this.editor.txt.html("<p>欢迎使用wangEditor编辑器</p>")
-        console.log(this.editor.txt.text());
-        console.log(this.editor.txt.html());
     }
 }
 </script>
