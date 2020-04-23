@@ -23,6 +23,7 @@ import Info from './Info_Setup'
 import Cluster from './Cluster_Setup'
 import Operation from './Operation_Setup'
 import CheckForm from './CheckForm_Setup'
+import {clusterSelectByName, initClusterDataWrite, initOperationDataWrite, operationSelectByName} from "../../apis/api";
 
 export default {
     name: 'Content_Setup',
@@ -45,7 +46,10 @@ export default {
             subContentId: 0,
             nextMenu: "",
             ClusterSelectedValue: null,
-            OperationSelectedValue: null
+            OperationSelectedValue: null,
+            clusterData:{},
+            operationData:{}
+
         }
     },
     methods: {
@@ -92,6 +96,10 @@ export default {
             // console.log(this.nextMenu)
         },
         confirmStep(){
+            if (this.ClusterSelectedValue != null && this.OperationSelectedValue != null) {
+                this.clusterEntityGet(this.ClusterSelectedValue)
+                this.operationEntityGet(this.OperationSelectedValue)
+            }
             this.$router.push({
                     path: '/action?cluster='+ this.ClusterSelectedValue +'&operation='+ this.OperationSelectedValue
                 })
@@ -100,6 +108,38 @@ export default {
             // this.currentMenu = this.nextMenu
             this.$emit("nextMenuToIndex", this.nextMenu)
         },
+        initClusterWrite(clusterData){
+          initClusterDataWrite(clusterData).then(response => {
+            console.log(response.data)
+          }).catch(error => {
+            console.log(error)
+          })
+        },
+        initOperationWrite(operationData){
+          initOperationDataWrite(operationData).then(response => {
+            console.log(response.data)
+          }).catch(error => {
+            console.log(error)
+          })
+        },
+        clusterEntityGet(ClusterSelectedValue){
+          clusterSelectByName(ClusterSelectedValue).then(response => {
+            console.log(response.data)
+            this.clusterData= response.data
+            this.initClusterWrite(this.clusterData)
+          }).catch(error => {
+            console.log(error)
+          })
+        },
+        operationEntityGet(OperationSelectedValue){
+          operationSelectByName(OperationSelectedValue).then(response => {
+            console.log((response.data))
+            this.operationData = response.data
+            this.initOperationWrite(this.operationData)
+          }).catch(error => {
+            console.log(error)
+          })
+        }
     },
     watch: {
         cateId: function(){

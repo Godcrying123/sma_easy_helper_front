@@ -9,6 +9,8 @@
 /* eslint-disable */
 // eslint-disable-next-line
 
+import {initOperationRead} from "../../apis/api";
+
 export default {
     name: 'Operation',
     data (){
@@ -20,12 +22,12 @@ export default {
     },
     methods: {
         operationInfoGet(){
-            this.$axios.get('http://localhost:3000/operations').then((response)=>{
-                this.operationData = response.data[0].DetailedSteps
+            initOperationRead().then(response => {
+                this.operationData = response.data.DetailedSteps
                 this.changeMenu()
-            }).catch((function(error){
+            }).catch(error => {
                 console.log(error)
-            }))
+            })
         },
         menuClick(name){
             this.subOperationData = this.operationData[name - 1]
@@ -38,10 +40,10 @@ export default {
             this.$emit('operationToIndex', this.subOperationData)
         },
         changeMenu() {
-            var html = '<Menu theme="light" width="auto" @on-select="menuClick">'
+            let html = '<Menu theme="light" width="auto" @on-select="menuClick">';
             for (const key in this.operationData) {
                 const element = this.operationData[key]
-                html += '<MenuItem theme="light" name="'+ element.SubOperation_ID +'" >'+ element.SubOperation_Description +'</MenuItem>'
+                html += '<MenuItem theme="light" name="'+ element.SubOperationID +'" >'+ element.SubOperationDescription +'</MenuItem>'
             }
             html += "</Menu>"
             this.menuCreateTemplate = html

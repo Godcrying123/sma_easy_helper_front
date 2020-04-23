@@ -9,10 +9,10 @@
             <Row>
                 <RadioGroup v-model="operationSelected">
                     <Poptip trigger="hover" content="This is operation for installing the nginx" placement="bottom-start">
-                        <Radio label="Nginx" border></Radio>
+                        <Radio label="nginx" border></Radio>
                     </Poptip>
-                    <Radio label="Oracle" border></Radio>
-                    <Radio label="NFS" border></Radio>
+                    <Radio label="oracle" border></Radio>
+                    <Radio label="nfs" border></Radio>
                     <Radio label="No Selection" border></Radio>
                 </RadioGroup>
             </Row>
@@ -35,23 +35,26 @@
 /* eslint-disable no-new */
 /* eslint-disable */
 // eslint-disable-next-line
+
+import {operationList} from "../../apis/api";
+
 export default {
     name: 'operation',
     props: ['OperationSelectedValue'],
     data (){
         return {
             operationSelected: null,
-            operation_data: ""
+            operationData: []
         }
     },
     methods: {
         operationInfoGet(){
-            this.$axios.get('http://localhost:3000/operations').then((response)=>{
-                this.operation_data = response.data[0].DetailedSteps
-                // console.log(this.operation_data)
-            }).catch((function(error){
+            operationList().then(response => {
+                // console.log(response.data)
+                this.operationData = response.data
+            }).catch(error => {
                 console.log(error)
-            }))
+            })
         },
         emitToContent(event){
             this.$emit('operationToContent', this.operationSelected)

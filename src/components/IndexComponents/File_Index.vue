@@ -41,10 +41,12 @@
 // eslint-disable-next-line
 
 import Editor from 'wangeditor'
+import {sshMachineInit} from '../../apis/api'
+import {fileDirList, fileRead, filewrite} from "../../apis/api";
 
 export default {
     name: 'File',
-    props: ['File','FileChange'],
+    props: ['File','FileChange', 'Machine'],
     data (){
         return {
             editor: "",
@@ -79,6 +81,7 @@ export default {
                     }
                 }
             ],
+            filePath:"",
             FileDemo:[
                 {
                     "Name": "test1.sh",
@@ -109,9 +112,36 @@ export default {
         },
         handleClick(name){
             console.log(name)
+        },
+        initMachineFunc(MachineEntity) {
+          // console.log(MachineEntity)
+          if (this.Machine != null) {
+            sshMachineInit(MachineEntity).then(response => {
+              // console.log(response.data)
+            }).catch(error => {
+              console.log(error)
+            })
+          }
+        },
+        fileList(FilePath){
+          console.log(FilePath)
+          fileDirList(FilePath).then(response => {
+              console.log(response.data)
+          }).catch(error => {
+              console.log(error)
+          })
+        },
+        fileReadContent(){
+
+        },
+        fileSaveContent(){
+
         }
     },
     mounted(){
+        this.initMachineFunc(this.Machine)
+        this.fileList(this.File)
+        this.fileReadContent(this.File)
         this.editor = new Editor("#editor");
         this.editor.customConfig.menus = [
             'head',  // 标题

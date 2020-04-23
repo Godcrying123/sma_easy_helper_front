@@ -6,12 +6,12 @@
                 Check Form
             </p>
             <p>Please confirm your selected cluster and operations, and you can review your choice in the below content.</p>
+            <br/>
             <p>
-                <br/>
                 this is your selected cluster information
             </p>
             <p>
-                <Table :columns="columns3" :data="clusterDemo.Machines"></Table>
+                <Table :columns="columns3" :data="clusterData.Machines"></Table>
             </p>
             <p>
                 <br/>
@@ -24,7 +24,12 @@
 </template>
 
 <script>
+/* eslint-disable no-new */
 /* eslint-disable */
+// eslint-disable-next-line
+
+import {clusterSelectByName, operationSelectByName} from "../../apis/api";
+
 export default {
     name: 'checkform',
     props:['ClusterSelectedValue','OperationSelectedValue'],
@@ -42,8 +47,8 @@ export default {
                     key: 'HostName',
                 },
                 {
-                    title: 'HostIp',
-                    key: 'HostIp',
+                    title: 'HostIP',
+                    key: 'HostIP',
                 },
                 {
                     title: 'UserName',
@@ -54,60 +59,36 @@ export default {
                     key: 'AuthType',
                 },
                 {
-                    title: 'Password',
-                    key: 'Password',
+                    title: 'PassWord',
+                    key: 'PassWord',
                 },
                 {
                     title: 'AuthKey',
                     key: 'AuthKey',
                 }],
-
-                clusterDemo: {
-                "Cluster_Id": 1,
-                "Name": "cluster-01",
-                "NumofMachine": 3,
-                "Label": "develop",
-                "Machines": [
-                {
-                    "Id": 1,
-                    "HostName": "test-cluster-01",
-                    "HostIp": "192.0.0.1",
-                    "UserName": "Jackson",
-                    "AuthType": "password",
-                    "Password": "123456",
-                    "AuthKey": "/test/script.crt",
-                    "Label": "master"
-                },
-                {
-                    "Id": 2,
-                    "HostName": "test-cluster-02",
-                    "HostIp": "192.0.0.1",
-                    "UserName": "Jackson",
-                    "AuthType": "password",
-                    "Password": "123456",
-                    "AuthKey": "/test/script.crt",
-                    "Label": "worker"
-                },
-                {
-                    "Id": 3,
-                    "HostName": "test-cluster-03",
-                    "HostIp": "192.0.0.1",
-                    "UserName": "Jackson",
-                    "AuthType": "password",
-                    "Password": "123456",
-                    "AuthKey": "/test/script.crt",
-                    "Label": "NFS-server"
-                }]
-            }
+                clusterData: {},
+                operationData: {}
         }
     },
     methods: {
         emitToContent(event){
             this.$emit('checkFormToContent', this.confirmDisplay)
         },
-        clusterEntityGet(){
+        clusterEntityGet(ClusterSelectedValue){
+          clusterSelectByName(ClusterSelectedValue).then(response => {
+            console.log(response.data)
+            this.clusterData= response.data
+          }).catch(error => {
+            console.log(error)
+          })
         },
-        operationEntityGet(){
+        operationEntityGet(OperationSelectedValue){
+          operationSelectByName(OperationSelectedValue).then(response => {
+            console.log((response.data))
+            this.operationData = response.data
+          }).catch(error => {
+            console.log(error)
+          })
         }
     },
     watch: {
@@ -117,8 +98,8 @@ export default {
     },
     mounted: function(){
         if (this.ClusterSelectedValue != null && this.OperationSelectedValue != null)  {
-            this.clusterEntityGet()
-            this.operationEntityGet()
+            this.clusterEntityGet(this.ClusterSelectedValue)
+            this.operationEntityGet(this.OperationSelectedValue)
             this.confirmDisplay = true
         }
     }

@@ -32,6 +32,10 @@
 /* eslint-disable no-new */
 /* eslint-disable */
 // eslint-disable-next-line
+
+import {clusterList} from "../../apis/api";
+
+
 export default {
     name: 'cluster',
     props: ['ClusterSelectedValue'],
@@ -49,8 +53,8 @@ export default {
                     key: 'HostName',
                 },
                 {
-                    title: 'HostIp',
-                    key: 'HostIp',
+                    title: 'HostIP',
+                    key: 'HostIP',
                 },
                 {
                     title: 'UserName',
@@ -61,8 +65,8 @@ export default {
                     key: 'AuthType',
                 },
                 {
-                    title: 'Password',
-                    key: 'Password',
+                    title: 'PassWord',
+                    key: 'PassWord',
                 },
                 {
                     title: 'AuthKey',
@@ -80,26 +84,21 @@ export default {
                                     type: 'text',
                                     size: 'small'
                                 }
-                            }, 'View'),
-                            h('Button', {
-                                props: {
-                                    type: 'text',
-                                    size: 'small'
-                                }
-                            }, 'Edit')
+                            }, 'View')
                         ]);
                     }
                 }],
-            clusterDate:[],
+            clusterDate:[]
         }
     },
     methods: {
         clusterInfoGet(){
-            this.$axios.get('http://localhost:3000/clusters').then((response) => {
-                this.clusterDate = response.data
-            }).catch((function (error){
-                console.log(error)
-            }))
+          clusterList().then(response => {
+              // console.log(response.data)
+              this.clusterDate = response.data
+          }).catch(error => {
+            console.log(error);
+          })
         },
         emitToContent(event){
             this.$emit('clusterToContent', this.clusterSelected)

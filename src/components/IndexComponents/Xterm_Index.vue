@@ -35,6 +35,7 @@ import * as fullscreen from "xterm/lib/addons/fullscreen/fullscreen"
 import "xterm/dist/xterm.css"
 
 import config from '@/libs/config'
+import {sshMachineInit} from '../../apis/api'
 
 let bindTerminalResize = (term, websocket) => {
     let onTerminalResize = size => {
@@ -98,7 +99,7 @@ let bindTerminal = (term, websocket, bidirectional, bufferedTime) => {
 };
 export default {
     name: "Shell",
-    props: ["execCommand"],
+    props: ["execCommand", 'Machine'],
     data() {
         return {
             isFullScreen:false,
@@ -216,9 +217,20 @@ export default {
             };
             bindTerminal(this.term, this.ws, true, -1)
             bindTerminalResize(this.term, this.ws)
+        },
+        initMachineFunc(MachineEntity) {
+          // console.log(MachineEntity)
+          if (this.Machine != null) {
+            sshMachineInit(MachineEntity).then(response => {
+                console.log(response.data)
+            }).catch(error => {
+                console.log(error)
+            })
+          }
         }
     },
     mounted(){
+        this.initMachineFunc(this.Machine)
         this.doOpened()
     }
 }
