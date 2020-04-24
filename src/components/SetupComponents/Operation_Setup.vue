@@ -7,21 +7,20 @@
             </Row>
             <br/>
             <Row>
-                <RadioGroup v-model="operationSelected">
-                    <Poptip trigger="hover" content="This is operation for installing the nginx" placement="bottom-start">
-                        <Radio label="nginx" border></Radio>
-                    </Poptip>
-                    <Radio label="oracle" border></Radio>
-                    <Radio label="nfs" border></Radio>
-                    <Radio label="No Selection" border></Radio>
+                <RadioGroup v-for="operationEntity in operationShortNameData" :key="operationEntity" v-model="operationSelected">
+                  <Radio :label="operationEntity" border></Radio>
                 </RadioGroup>
             </Row>
             <Row>
                 <Collapse simple accordion>
-                    <Panel>
-                        Operation_1
+                    <Panel v-for="operationEntity in operationData" :key="operationEntity">
+                      {{ operationEntity.OperationShortName }}
                         <p slot="content">
-                            This is a test
+                          {{ operationEntity.OperationDescription }}
+                          <br/>
+                          <ul class="list-group list-group-flush" v-for="StepEntity in operationEntity.DetailedSteps" :key="StepEntity.SubOperationID">
+                            <li>{{ StepEntity.SubOperationDescription }}</li>
+                          </ul>
                         </p>
                     </Panel>
                 </Collapse>
@@ -44,20 +43,29 @@ export default {
     data (){
         return {
             operationSelected: null,
-            operationData: []
+            operationData: [],
+            operationShortNameData:[]
         }
     },
     methods: {
         operationInfoGet(){
             operationList().then(response => {
-                // console.log(response.data)
                 this.operationData = response.data
+                console.log(this.operationData)
+                this.operationShortNameGet()
             }).catch(error => {
                 console.log(error)
             })
         },
         emitToContent(event){
             this.$emit('operationToContent', this.operationSelected)
+        },
+        operationShortNameGet(){
+            for (let index = 0; index < this.operationData.length; index++){
+                const element = this.operationData[index]
+                this.operationShortNameData.push(element.OperationShortName)
+            }
+            console.log(this.operationShortNameData)
         }
     },
     watch: {

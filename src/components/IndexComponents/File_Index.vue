@@ -10,7 +10,7 @@
                     </Row>
                     <br>
                     <Row>
-                        <Table height="500" :columns="columns1" :data="FileDemo"></Table>
+                        <Table height="500" :columns="columns1" :data="fileData"></Table>
                     </Row>
                     <Row>
                         <Card>
@@ -24,7 +24,7 @@
             </Col>
             <Col span="16">
             <Row>
-                <Button type="primary" :size="large">Submit</Button>
+                <Button type="primary" :size="large" @click="fileSave">Submit</Button>
             </Row>
             <br>
             <Row>
@@ -53,11 +53,22 @@ export default {
             columns1: [
                 {
                     title: 'File Name',
-                    key: 'Name'
+                    key: 'FileName'
                 },
                 {
                     title: 'Modified Time',
-                    key: 'Time'
+                    key: 'FileLastModified'
+                },
+                {
+                    title: 'File Path',
+                    key: 'FilePath',
+                    render: (h, params) => {
+                        return h('div', {
+                            style: {
+                              cursor: 'pointer'
+                            }
+                        })
+                    }
                 },
                 {
                     title: 'Action',
@@ -72,8 +83,9 @@ export default {
                                 },
                                  on:{
                                      click: () => {
-                                         const name = params.row.Name
-                                         this.handleClick(name)
+                                         const name = params.row.FileName
+                                         const path = params.row.FilePath
+                                         this.handleClick(name, path)
                                      }
                                     }
                             }, 'Open')
@@ -82,36 +94,21 @@ export default {
                 }
             ],
             filePath:"",
-            FileDemo:[
-                {
-                    "Name": "test1.sh",
-                    "Time": "2019-01-02"
-                },
-                {
-                    "Name": "test2.sh",
-                    "Time": "2019-01-02"
-                },
-                {
-                    "Name": "test3.sh",
-                    "Time": "2019-01-02"
-                },
-                {
-                    "Name": "test4.sh",
-                    "Time": "2019-01-02"
-                },
-                {
-                    "Name": "test5.sh",
-                    "Time": "2019-01-02"
-                }
-            ]
+            fileData: [],
+            fileContent: ""
         }
     },
     methods: {
-        fileNav() {
-            console.log("I am navgating to the file")
+        fileSave(){
+          this.fileSaveContent()
         },
-        handleClick(name){
-            console.log(name)
+        fileNav() {
+            this.fileReadContent(this.File)
+        },
+        handleClick(name, path){
+            let filePath = path + "/" +name
+            this.File = filePath
+            this.fileReadContent(filePath)
         },
         initMachineFunc(MachineEntity) {
           // console.log(MachineEntity)
@@ -124,19 +121,33 @@ export default {
           }
         },
         fileList(FilePath){
-          console.log(FilePath)
+          console.log(this.File)
           fileDirList(FilePath).then(response => {
               console.log(response.data)
+              this.fileData = response.data
           }).catch(error => {
               console.log(error)
           })
         },
-        fileReadContent(){
-
+        fileReadContent(filePath){
+          fileRead(filePath).then(response => {
+              this.fileContent = response.data.FileContent
+          }).catch(error => {
+              console.log(error)
+          })
         },
         fileSaveContent(){
-
+            filewrite(this.File, this.fileContent).then(response => {
+                console.log(response.data)
+            }).catch(error => {
+                console.log(error)
+            })
         }
+    },
+    watch: {
+      fileContent: function () {
+        this.editor.txt.text(this.fileContent)
+      }
     },
     mounted(){
         this.initMachineFunc(this.Machine)
@@ -177,7 +188,6 @@ export default {
             console.log(text);
         };
         this.editor.create();
-        this.editor.txt.html("<p>欢迎使用wangEditor编辑器</p>")
     }
 }
 </script>

@@ -15,8 +15,8 @@
                 <span class="expand-value">{{ row.AuthType }}</span>
             </Col>
             <Col span="6">
-                <span class="expand-key">Password: </span>
-                <span class="expand-value">{{ row.Password }}</span>
+                <span class="expand-key">PassWord: </span>
+                <span class="expand-value">{{ row.PassWord }}</span>
             </Col>
             <Col span="6">
                 <span class="expand-key">AuthKey: </span>

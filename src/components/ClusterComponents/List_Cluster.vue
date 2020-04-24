@@ -1,6 +1,6 @@
 <template>
     <div>
-        <component :is="ClusterMenu"></component>
+        <component v-on:clusterNameToParent="clusterGet" :is="ClusterMenu"></component>
     </div>
 </template>
 
@@ -14,17 +14,18 @@ export default {
     props: ["clusterListData"],
     data (){
         return {
-            clusterSelect: null,
+            clusterSelectGet: null,
             menuCreateTemplate: ""
         }
     },
     methods: {
-        clusterClick(name) {
-            this.clusterSelect = name
+        clusterGet(name) {
+            this.clusterSelectGet = name
+            this.emitToClusterIndex()
         },
-        emitToClusterIndex(event){
+        emitToClusterIndex(){
             // console.log(this.clusterSelect)
-            this.$emit('clusterNameToIndex', this.clusterSelect)
+            this.$emit('clusterNameToIndex', this.clusterSelectGet)
         },
         changeMenu() {
             var html = '<Menu theme="light" width="auto" @on-select="clusterClick">'
@@ -55,6 +56,14 @@ export default {
                     clusterClick(name) {
                         this.clusterSelect = name
                     },
+                    emitToClusterParent(){
+                      this.$emit('clusterNameToParent', this.clusterSelect)
+                    }
+                },
+                watch: {
+                    clusterSelect: function () {
+                        this.emitToClusterParent()
+                    }
                 },
                 template: `${this.menuCreateTemplate}`
             }
@@ -62,7 +71,7 @@ export default {
     },
     mounted(){
         // this.changeMenu()
-        
+
     }
 }
 </script>

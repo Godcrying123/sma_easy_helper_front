@@ -56,8 +56,8 @@ export default {
                     key: 'HostName'
                 },
                 {
-                    title: 'HostIp',
-                    key: 'HostIp'
+                    title: 'HostIP',
+                    key: 'HostIP'
                 },
                 {
                     title: '',
