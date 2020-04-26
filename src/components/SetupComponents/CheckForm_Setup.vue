@@ -8,16 +8,20 @@
             <p>Please confirm your selected cluster and operations, and you can review your choice in the below content.</p>
             <br/>
             <p>
-                this is your selected cluster information
+                this is your selected cluster information: {{ clusterData.Name }}
             </p>
             <p>
                 <Table :columns="columns3" :data="clusterData.Machines"></Table>
             </p>
             <p>
-                <br/>
                 this is your selected operation information
             </p>
             <p>
+              <List :header="operationData.OperationShortName"  border>
+                <div v-for="operationEntity in operationData.DetailedSteps" :key="operationEntity.SubOperationID">
+                  <ListItem>{{ operationEntity.SubOperationID }}.{{ operationEntity.SubOperationDescription }}</ListItem>
+                </div>
+              </List>
             </p>
         </Card>
     </div>
@@ -76,7 +80,7 @@ export default {
         },
         clusterEntityGet(ClusterSelectedValue){
           clusterSelectByName(ClusterSelectedValue).then(response => {
-            console.log(response.data)
+            // console.log(response.data)
             this.clusterData= response.data
           }).catch(error => {
             console.log(error)
@@ -84,7 +88,7 @@ export default {
         },
         operationEntityGet(OperationSelectedValue){
           operationSelectByName(OperationSelectedValue).then(response => {
-            console.log((response.data))
+            // console.log((response.data))
             this.operationData = response.data
           }).catch(error => {
             console.log(error)
@@ -97,10 +101,14 @@ export default {
         }
     },
     mounted: function(){
-        if (this.ClusterSelectedValue != null && this.OperationSelectedValue != null)  {
-            this.clusterEntityGet(this.ClusterSelectedValue)
-            this.operationEntityGet(this.OperationSelectedValue)
-            this.confirmDisplay = true
+        if (this.ClusterSelectedValue != null){
+          this.clusterEntityGet(this.ClusterSelectedValue)
+        }
+        if (this.OperationSelectedValue != null)  {
+          this.operationEntityGet(this.OperationSelectedValue)
+        }
+        if (this.ClusterSelectedValue != null && this.OperationSelectedValue != null){
+          this.confirmDisplay = true
         }
     }
 }

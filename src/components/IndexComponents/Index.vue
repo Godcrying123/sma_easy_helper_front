@@ -6,7 +6,7 @@
             </Sider>
             <Layout :style="{padding: '24px 24px 24px 24px'}">
                 <Content :style="{padding: '24px', minHeight: '1000px', background: '#fff'}">
-                    <component v-on:tabList="getTabList" :Machine="Machine" :indexTabList="indexTabList" :execCommandMain="execCommandMain" :FileMain="FileMain" :FileChangeMain="FileChangeMain" :TabSet="TabSet" :TabSelect="TabSelect" :is="TabTemplate"></component>
+                    <component v-on:tabList="getTabList" :Machine="Machine" :indexTabList="indexTabList" :execCommandMain="execCommandMain" :FileMain="FileMain" :FileChangeMain="FileChangeMain" :TabSet="TabSet" :TabSelect="TabSelect" :URL="URL" :Notification="Notification" :is="TabTemplate"></component>
                 </Content>
             </Layout>
         </Layout>
@@ -23,6 +23,7 @@ import Operation from './Operation_Index'
 import File from './File_Index'
 import NotiImage from './Image_Index'
 import Notification from './Notification_Index'
+import URL from './URL_Index'
 
 import {initClusterRead} from "../../apis/api";
 
@@ -42,7 +43,9 @@ export default {
             FileMain: "",
             FileChangeMain: "",
             MachineMap: {},
-            Machine: {}
+            Machine: {},
+            URL: "",
+            Notification: ""
         }
     },
     props: {
@@ -57,6 +60,8 @@ export default {
             this.Machine = value.Machine
             this.FileMain = value.File
             this.FileChangeMain = value.FileChange
+            this.URL = value.URL
+            this.Notification = value.Notifications
             this.TabSet[value.SubOperationID] = value
             // this.TabSelect = value.Machine + "||" + value.StepType + "||" + value.SubOperation_ID
             this.TabSelect = "tab" + value.SubOperationID
@@ -67,13 +72,14 @@ export default {
                 for (const key in response.data.Machines) {
                     this.MachineMap[response.data.Machines[key].Label] = response.data.Machines[key]
                 }
-                // console.log(this.MachineMap)
+                console.log(response.data)
             }).catch(error => {
                 console.log(error)
             })
         },
         changeTabWindows () {
             let html = '<Tabs type="card" id="indexTab" :animated=false :value="TabSelect" closable @on-tab-remove="handleTabRemove">';
+            console.log(this.TabSet)
             for (const key in this.TabSet) {
                 if (this.TabSet.hasOwnProperty(key)) {
                     const element = this.TabSet[key];
@@ -87,7 +93,7 @@ export default {
                     } else if (element.StepType == 'Image'){
                         html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><NotiImage></NotiImage></TabPane>'
                     }  else if (element.StepType == 'URL'){
-                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" >URL</TabPane>'
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><URL :URL="URL" :Notification="Notification"></URL></TabPane>'
                     }
                 }
             }
@@ -106,8 +112,9 @@ export default {
                     Xterm,
                     File,
                     NotiImage,
+                    URL
                 },
-                props: ['TabSelect', 'TabSet', 'indexTabList', 'execCommandMain', 'FileMain', 'FileChangeMain', 'Machine'],
+                props: ['TabSelect', 'TabSet', 'indexTabList', 'execCommandMain', 'FileMain', 'FileChangeMain', 'Machine', 'URL', 'Notification'],
                 data(){
                     return{
                         tabList: [],
@@ -152,7 +159,7 @@ export default {
             }
         }
     },
-    mounted() {
+    created() {
         this.machineMap()
     }
 }

@@ -23,6 +23,7 @@ export default {
     methods: {
         operationInfoGet(){
             initOperationRead().then(response => {
+                // console.log(response.data)
                 this.operationData = response.data.DetailedSteps
                 this.changeMenu()
             }).catch(error => {

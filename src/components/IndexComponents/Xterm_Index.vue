@@ -129,6 +129,7 @@ export default {
         },
         wsUrl() {
             let token = localStorage.getItem('token');
+            // let testURL = ''
             let testURL = `${config.wsBase}/api/v1/ws/`
             return testURL
         }
@@ -218,11 +219,10 @@ export default {
             bindTerminal(this.term, this.ws, true, -1)
             bindTerminalResize(this.term, this.ws)
         },
-        initMachineFunc(MachineEntity) {
-          // console.log(MachineEntity)
+        async initMachineFunc(MachineEntity) {
           if (this.Machine != null) {
-            sshMachineInit(MachineEntity).then(response => {
-                console.log(response.data)
+            await sshMachineInit(MachineEntity).then(response => {
+              this.doOpened()
             }).catch(error => {
                 console.log(error)
             })
@@ -230,8 +230,7 @@ export default {
         }
     },
     mounted(){
-        this.initMachineFunc(this.Machine)
-        this.doOpened()
+      this.initMachineFunc(this.Machine)
     }
 }
 </script>

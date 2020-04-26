@@ -20,7 +20,8 @@ module.exports = {
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
     proxyTable: {
       '/api': {
-        target: 'http://16.186.79.97:8877',
+        // target: 'http://16.186.79.97:8877',
+        target: 'http://localhost:8877',
         changeOrigin: true,
         ws: true
       }

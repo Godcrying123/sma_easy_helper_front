@@ -13,7 +13,7 @@
             </Row>
             <Row>
                 <Collapse simple accordion>
-                    <Panel v-for="operationEntity in operationData" :key="operationEntity">
+                    <Panel v-for="operationEntity in operationData" :key="operationEntity.OperationShortName">
                       {{ operationEntity.OperationShortName }}
                         <p slot="content">
                           {{ operationEntity.OperationDescription }}
@@ -51,7 +51,7 @@ export default {
         operationInfoGet(){
             operationList().then(response => {
                 this.operationData = response.data
-                console.log(this.operationData)
+                // console.log(this.operationData)
                 this.operationShortNameGet()
             }).catch(error => {
                 console.log(error)
@@ -65,7 +65,7 @@ export default {
                 const element = this.operationData[index]
                 this.operationShortNameData.push(element.OperationShortName)
             }
-            console.log(this.operationShortNameData)
+            // console.log(this.operationShortNameData)
         }
     },
     watch: {

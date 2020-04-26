@@ -23,7 +23,7 @@ import Info from './Info_Setup'
 import Cluster from './Cluster_Setup'
 import Operation from './Operation_Setup'
 import CheckForm from './CheckForm_Setup'
-import {clusterSelectByName, initClusterDataWrite, initOperationDataWrite, operationSelectByName} from "../../apis/api";
+import {clusterSelectByName, initClusterDataWrite, initOperationDataWrite, operationSelectByName, initClusterRead, initOperationRead} from "../../apis/api";
 
 export default {
     name: 'Content_Setup',
@@ -95,45 +95,50 @@ export default {
             this.emitNextMenuToIndex()
             // console.log(this.nextMenu)
         },
-        confirmStep(){
-            if (this.ClusterSelectedValue != null && this.OperationSelectedValue != null) {
-                this.clusterEntityGet(this.ClusterSelectedValue)
-                this.operationEntityGet(this.OperationSelectedValue)
+        async confirmStep(){
+            if (this.ClusterSelectedValue != null ) {
+              await this.clusterEntityGet(this.ClusterSelectedValue)
             }
+            if (this.OperationSelectedValue != null) {
+              await this.operationEntityGet(this.OperationSelectedValue)
+            }
+            await initClusterRead()
+            await initOperationRead()
             this.$router.push({
                     path: '/action?cluster='+ this.ClusterSelectedValue +'&operation='+ this.OperationSelectedValue
+                    // path: '/action'
                 })
         },
         emitNextMenuToIndex(){
             // this.currentMenu = this.nextMenu
             this.$emit("nextMenuToIndex", this.nextMenu)
         },
-        initClusterWrite(clusterData){
-          initClusterDataWrite(clusterData).then(response => {
-            console.log(response.data)
+        async initClusterWrite(clusterData){
+          await initClusterDataWrite(clusterData).then(response => {
+            console.log("cluster write done")
           }).catch(error => {
             console.log(error)
           })
         },
-        initOperationWrite(operationData){
-          initOperationDataWrite(operationData).then(response => {
-            console.log(response.data)
+        async initOperationWrite(operationData){
+          await initOperationDataWrite(operationData).then(response => {
+            console.log("operation write done")
           }).catch(error => {
             console.log(error)
           })
         },
-        clusterEntityGet(ClusterSelectedValue){
-          clusterSelectByName(ClusterSelectedValue).then(response => {
-            console.log(response.data)
+       async clusterEntityGet(ClusterSelectedValue){
+         await clusterSelectByName(ClusterSelectedValue).then(response => {
+            // console.log(response.data)
             this.clusterData= response.data
             this.initClusterWrite(this.clusterData)
           }).catch(error => {
             console.log(error)
           })
         },
-        operationEntityGet(OperationSelectedValue){
-          operationSelectByName(OperationSelectedValue).then(response => {
-            console.log((response.data))
+        async operationEntityGet(OperationSelectedValue){
+          await operationSelectByName(OperationSelectedValue).then(response => {
+            // console.log((response.data))
             this.operationData = response.data
             this.initOperationWrite(this.operationData)
           }).catch(error => {
