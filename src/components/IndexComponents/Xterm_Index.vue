@@ -222,7 +222,6 @@ export default {
         async initMachineFunc(MachineEntity) {
           if (this.Machine != null) {
             await sshMachineInit(MachineEntity).then(response => {
-              this.doOpened()
             }).catch(error => {
                 console.log(error)
             })
@@ -231,6 +230,7 @@ export default {
     },
     mounted(){
       this.initMachineFunc(this.Machine)
+      this.doOpened()
     }
 }
 </script>
