@@ -6,30 +6,40 @@
                 Check Form
             </p>
             <p>Please confirm your selected cluster and operations, and you can review your choice in the below content.</p>
+            <br/>
             <p>
-                <br/>
-                this is your selected cluster information
+                this is your selected cluster information: {{ clusterData.Name }}
             </p>
             <p>
-                <Table :columns="columns3"></Table>
+                <Table :columns="columns3" :data="clusterData.Machines"></Table>
             </p>
             <p>
-                <br/>
                 this is your selected operation information
             </p>
             <p>
+              <List :header="operationData.OperationShortName"  border>
+                <div v-for="operationEntity in operationData.DetailedSteps" :key="operationEntity.SubOperationID">
+                  <ListItem>{{ operationEntity.SubOperationID }}.{{ operationEntity.SubOperationDescription }}</ListItem>
+                </div>
+              </List>
             </p>
         </Card>
     </div>
 </template>
 
 <script>
+/* eslint-disable no-new */
 /* eslint-disable */
+// eslint-disable-next-line
+
+import {clusterSelectByName, operationSelectByName} from "../../apis/api";
+
 export default {
     name: 'checkform',
+    props:['ClusterSelectedValue','OperationSelectedValue'],
     data (){
         return {
-            confirmDisplay:true,
+            confirmDisplay:false,
             columns3: [
                 {
                     title: 'Label',
@@ -41,8 +51,8 @@ export default {
                     key: 'HostName',
                 },
                 {
-                    title: 'HostIp',
-                    key: 'HostIp',
+                    title: 'HostIP',
+                    key: 'HostIP',
                 },
                 {
                     title: 'UserName',
@@ -53,22 +63,53 @@ export default {
                     key: 'AuthType',
                 },
                 {
-                    title: 'Password',
-                    key: 'Password',
+                    title: 'PassWord',
+                    key: 'PassWord',
                 },
                 {
                     title: 'AuthKey',
                     key: 'AuthKey',
                 }],
+                clusterData: {},
+                operationData: {}
         }
     },
     methods: {
         emitToContent(event){
             this.$emit('checkFormToContent', this.confirmDisplay)
+        },
+        clusterEntityGet(ClusterSelectedValue){
+          clusterSelectByName(ClusterSelectedValue).then(response => {
+            // console.log(response.data)
+            this.clusterData= response.data
+          }).catch(error => {
+            console.log(error)
+          })
+        },
+        operationEntityGet(OperationSelectedValue){
+          operationSelectByName(OperationSelectedValue).then(response => {
+            // console.log((response.data))
+            this.operationData = response.data
+          }).catch(error => {
+            console.log(error)
+          })
+        }
+    },
+    watch: {
+        confirmDisplay: function(){
+            this.emitToContent()
         }
     },
     mounted: function(){
-        this.emitToContent()
+        if (this.ClusterSelectedValue != null){
+          this.clusterEntityGet(this.ClusterSelectedValue)
+        }
+        if (this.OperationSelectedValue != null)  {
+          this.operationEntityGet(this.OperationSelectedValue)
+        }
+        if (this.ClusterSelectedValue != null && this.OperationSelectedValue != null){
+          this.confirmDisplay = true
+        }
     }
 }
 </script>

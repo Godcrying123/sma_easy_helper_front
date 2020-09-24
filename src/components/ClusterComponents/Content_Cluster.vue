@@ -56,8 +56,8 @@ export default {
                     key: 'HostName'
                 },
                 {
-                    title: 'HostIp',
-                    key: 'HostIp'
+                    title: 'HostIP',
+                    key: 'HostIP'
                 },
                 {
                     title: '',
@@ -69,7 +69,7 @@ export default {
     props: ['clusterDemo'],
     methods: {
         clusterDemoShow(){
-            console.log(this.clusterDemo)
+            // console.log(this.clusterDemo)
         }
     },
     watch: {

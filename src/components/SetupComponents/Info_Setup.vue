@@ -11,10 +11,13 @@
             </ul>
         </div>
         <div v-if="step2" id="step2">
+            <img src="../../img/cluster.jpg" alt="The Cluster">
         </div>
         <div v-if="step3" id="step3">
+            <img src="../../img/operations.jpg" alt="The Operation">
         </div>
         <div v-if="step4" id="step4">
+            <img src="../../img/checkform.jpg" alt="The CheckForm">
         </div>
     </div>
 </template>

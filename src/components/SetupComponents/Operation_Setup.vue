@@ -7,21 +7,20 @@
             </Row>
             <br/>
             <Row>
-                <RadioGroup>
-                    <Poptip trigger="hover" content="This is operation for installing the nginx" placement="bottom-start">
-                        <Radio label="Nginx" border></Radio>
-                    </Poptip>
-                    <Radio label="Oracle" border></Radio>
-                    <Radio label="NFS" border></Radio>
-                    <Radio label="No Selection" border></Radio>
+                <RadioGroup v-for="operationEntity in operationShortNameData" :key="operationEntity" v-model="operationSelected">
+                  <Radio :label="operationEntity" border></Radio>
                 </RadioGroup>
             </Row>
             <Row>
                 <Collapse simple accordion>
-                    <Panel>
-                        Operation_1
+                    <Panel v-for="operationEntity in operationData" :key="operationEntity.OperationShortName">
+                      {{ operationEntity.OperationShortName }}
                         <p slot="content">
-                            This is a test
+                          {{ operationEntity.OperationDescription }}
+                          <br/>
+                          <ul class="list-group list-group-flush" v-for="StepEntity in operationEntity.DetailedSteps" :key="StepEntity.SubOperationID">
+                            <li>{{ StepEntity.SubOperationDescription }}</li>
+                          </ul>
                         </p>
                     </Panel>
                 </Collapse>
@@ -35,26 +34,48 @@
 /* eslint-disable no-new */
 /* eslint-disable */
 // eslint-disable-next-line
+
+import {operationList} from "../../apis/api";
+
 export default {
     name: 'operation',
+    props: ['OperationSelectedValue'],
     data (){
         return {
-            operation_data: ""
+            operationSelected: null,
+            operationData: [],
+            operationShortNameData:[]
         }
     },
     methods: {
         operationInfoGet(){
-            this.$axios.get('http://localhost:3000/operations').then((response)=>{
-                this.operation_data = response.data[0].DetailedSteps
-                console.log(this.operation_data)
-            }).catch((function(error){
+            operationList().then(response => {
+                this.operationData = response.data
+                // console.log(this.operationData)
+                this.operationShortNameGet()
+            }).catch(error => {
                 console.log(error)
-            }))
+            })
+        },
+        emitToContent(event){
+            this.$emit('operationToContent', this.operationSelected)
+        },
+        operationShortNameGet(){
+            for (let index = 0; index < this.operationData.length; index++){
+                const element = this.operationData[index]
+                this.operationShortNameData.push(element.OperationShortName)
+            }
+            // console.log(this.operationShortNameData)
+        }
+    },
+    watch: {
+        operationSelected: function(){
+            this.emitToContent()
         }
     },
     mounted: function(){
         this.operationInfoGet()
-
+        this.operationSelected = this.OperationSelectedValue
     }
 }
 </script>

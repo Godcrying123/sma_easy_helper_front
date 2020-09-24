@@ -5,8 +5,8 @@
                 <Operation v-on:operationToIndex="getSubStep"></Operation>
             </Sider>
             <Layout :style="{padding: '24px 24px 24px 24px'}">
-                <Content :style="{padding: '24px', background: '#fff'}">
-                    <component :is="TabTemplate"></component>
+                <Content :style="{padding: '24px', minHeight: '1000px', background: '#fff'}">
+                    <component v-on:tabList="getTabList" :Machine="Machine" :indexTabList="indexTabList" :execCommandMain="execCommandMain" :FileMain="FileMain" :FileChangeMain="FileChangeMain" :TabSet="TabSet" :TabSelect="TabSelect" :URL="URL" :Notification="Notification" :is="TabTemplate"></component>
                 </Content>
             </Layout>
         </Layout>
@@ -23,6 +23,9 @@ import Operation from './Operation_Index'
 import File from './File_Index'
 import NotiImage from './Image_Index'
 import Notification from './Notification_Index'
+import URL from './URL_Index'
+
+import {initClusterRead} from "../../apis/api";
 
 export default {
     name: 'Action',
@@ -33,8 +36,16 @@ export default {
     data (){
         return {
             TabSet: {},
-            split1: 0.25,
-            TabSelect: null
+            indexTabList: [],
+            // split1: 0.25,
+            TabSelect: "",
+            execCommandMain: "",
+            FileMain: "",
+            FileChangeMain: "",
+            MachineMap: {},
+            Machine: {},
+            URL: "",
+            Notification: ""
         }
     },
     props: {
@@ -45,33 +56,53 @@ export default {
     },
     methods: {
         getSubStep(value){
-            if (this.TabSet[value.SubOperation_ID] == null) {
-                this.TabSet[value.SubOperation_ID] = value
-                this.TabSelect = value.Machine + " || " + value.StepType
-                console.log(this.TabSelect)
-                this.changeTabWindows()
-            }
+            this.execCommandMain = value.Commands
+            this.Machine = value.Machine
+            this.FileMain = value.File
+            this.FileChangeMain = value.FileChange
+            this.URL = value.URL
+            this.Notification = value.Notifications
+            this.TabSet[value.SubOperationID] = value
+            // this.TabSelect = value.Machine + "||" + value.StepType + "||" + value.SubOperation_ID
+            this.TabSelect = "tab" + value.SubOperationID
+            this.changeTabWindows()
+        },
+        machineMap(){
+            initClusterRead().then(response => {
+                for (const key in response.data.Machines) {
+                    this.MachineMap[response.data.Machines[key].Label] = response.data.Machines[key]
+                }
+                console.log(response.data)
+            }).catch(error => {
+                console.log(error)
+            })
         },
         changeTabWindows () {
-            var html = '<Tabs type="card" id="indexTab" :value="TabValue" closable @on-tab-remove="handleTabRemove">';
+            let html = '<Tabs type="card" id="indexTab" :animated=false :value="TabSelect" closable @on-tab-remove="handleTabRemove">';
+            console.log(this.TabSet)
             for (const key in this.TabSet) {
                 if (this.TabSet.hasOwnProperty(key)) {
                     const element = this.TabSet[key];
-                    const tabName = element.Machine+" || "+element.StepType
+                    const tabLabel = "[" + element.StepType + "]" + element.Machine + "|" + element.SubOperationID
+                    const tabName = "tab" + element.SubOperationID
+                    const vifLabel = element.SubOperationID - 1;
                     if (element.StepType == 'SSH') {
-                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'"><Xterm></Xterm></TabPane>'
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><Xterm :Machine="Machine" :execCommand="execCommand" ></Xterm></TabPane>'
                     } else if (element.StepType == 'File') {
-                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'"><File></File></TabPane>'
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><File :Machine="Machine" :File="File" :FileChange="FileChange" ></File></TabPane>'
                     } else if (element.StepType == 'Image'){
-                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'"><NotiImage></NotiImage></TabPane>'
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><NotiImage></NotiImage></TabPane>'
                     }  else if (element.StepType == 'URL'){
-                        html += '<TabPane label="'+ tabName +'" v-if="tab0" name="'+ tabName +'">URL</TabPane>'
-                    } 
+                        html += '<TabPane v-if="tabList['+ vifLabel +']" name="'+ tabName +'" label="'+ tabLabel +'" ><URL :URL="URL" :Notification="Notification"></URL></TabPane>'
+                    }
                 }
             }
             html += '</Tabs>'
             this.TabCreateTemplate = html
-            // console.log(this.TabTemplate)
+        },
+        getTabList(value){
+            this.indexTabList = value
+            this.changeTabWindows()
         }
     },
     computed: {
@@ -81,28 +112,55 @@ export default {
                     Xterm,
                     File,
                     NotiImage,
+                    URL
                 },
+                props: ['TabSelect', 'TabSet', 'indexTabList', 'execCommandMain', 'FileMain', 'FileChangeMain', 'Machine', 'URL', 'Notification'],
                 data(){
                     return{
-                        tab0: true,
-                        tab1: true,
-                        tab2: true,
-                        TabValue: `${this.TabSelect}`
+                        tabList: [],
+                        tabSelectName: null,
+                        execCommand: "",
+                        File: "",
+                        FileChange: ""
                     }
                 },
                 template: `${this.TabCreateTemplate}`,
                 methods: {
                     handleTabRemove (name) {
-                        this['tab' + name] = false;
+                        this.tabSelectName = name.slice(3)
+                        this.tabList[parseInt(this.tabSelectName) - 1] = false;
+                        delete this.TabSet[this.tabSelectName]
+                        this.emitTabListToIndex()
+                        this.emitTabSetToIndex()
+                    },
+                    emitTabListToIndex(event){
+                        this.$emit('tabList', this.tabList)
+                    },
+                    emitTabSetToIndex(event){
+                        this.$emit('TabSet', this)
                     }
                 },
                 watch: {
-                    TabValue: function(val) {
+                    'this.tabList': function(val){
                         console.log(val)
                     }
-                }
+                },
+                mounted() {
+                    this.execCommand = this.execCommandMain
+                    this.File = this.FileMain
+                    this.FileChange = this.FileChangeMain
+                    var length = Object.keys(this.TabSet).length
+                    this.tabList = this.indexTabList
+                    for (const key in this.TabSet) {
+                        var index = parseInt(key - 1)
+                        this.tabList[index] = true
+                    }
+                },
             }
         }
+    },
+    created() {
+        this.machineMap()
     }
 }
 </script>
